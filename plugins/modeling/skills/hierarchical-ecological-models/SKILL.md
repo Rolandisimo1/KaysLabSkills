@@ -1,19 +1,12 @@
 ---
-name: ben-golstein
-description: >-
-  Build and analyze hierarchical ecological models in R the way Ben Goldstein
-  (dochvam) does. Use for occupancy, N-mixture, abundance, and species-distribution
-  models; integrated SDMs that fuse camera traps, iNaturalist, eBird, telemetry, and
-  spatial covariates; NIMBLE / nimbleEcology model code; simulation-based validation
-  of an estimator; and structuring a reproducible-analysis repo for a manuscript.
-  Triggers: "occupancy model", "N-mixture", "integrated SDM / data integration",
-  "camera trap detection histories", "iNaturalist bias", "NIMBLE", "simulation study",
-  "reproducible code for a paper".
+name: hierarchical-ecological-models
+description: "Build, fit, and validate hierarchical ecological models in R: occupancy, N-mixture, abundance, and species distribution models, including integrated SDMs that combine camera traps, iNaturalist, eBird, telemetry, and spatial covariates. Covers NIMBLE and nimbleEcology model code, unmarked and custom optim likelihoods, simulation from known truth to validate an estimator, and laying out a reproducible-analysis repo for a manuscript. Use when writing or debugging an occupancy or N-mixture model, building camera-trap detection histories, correcting iNaturalist sampling bias, writing NIMBLE code, designing a simulation study, or preparing reproducible code for a paper."
 ---
 
-# Hierarchical Ecology Modeling (style: Goldstein)
+# Hierarchical Ecology Modeling
 
-Extracted from Mammal_SVCs_ISDM_reproducible, Red_Snapper_ESA,
+Patterns follow the public analysis repositories of Ben Goldstein (GitHub:
+dochvam). Extracted from Mammal_SVCs_ISDM_reproducible, Red_Snapper_ESA,
 autocorr_occ_camtraps_reproducible, and iNat_novelty_specialization_reproducible.
 The through-line: hierarchical statistical models fit to messy, semi-structured
 biodiversity data, integrated across sources, and always validated against
