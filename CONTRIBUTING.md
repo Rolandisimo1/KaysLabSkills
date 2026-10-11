@@ -43,3 +43,10 @@ is read only after that decision.
 - Useful to anyone in the lab: one of the lab plugins.
 - One project only: that project's own repo, in `.claude/skills/`.
 - One person's preferences: that person's own account, or a personal plugin.
+
+## Test triggering after a change
+
+`tests/check-triggers.sh` runs each prompt in `tests/trigger_prompts.tsv`
+through Claude Code and reports which skills loaded, against
+`tests/expected.tsv`. Add a prompt and its expected skills whenever you add a
+skill. Runs vary, so use at least two runs per prompt.
