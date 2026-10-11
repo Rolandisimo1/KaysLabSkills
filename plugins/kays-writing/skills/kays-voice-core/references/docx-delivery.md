@@ -1,9 +1,7 @@
----
-name: kays-document-format
-description: Deliver prose documents to the user as Word .docx files, never bare markdown. Use whenever producing or exporting a written deliverable — literature review, manuscript, manuscript section or outline, report, memo, summary, methods write-up, draft, response to reviewers, or any prose document the user will read, edit, or share. Also use when converting or re-saving an existing .md deliverable, or when the user asks for "a doc", "a Word file", or "a Google Doc". Covers pandoc invocation, figure embedding, and clickable DOI hyperlinks.
----
 
-# Document delivery format
+# Delivering prose as .docx
+
+Reference for kays-voice-core (formerly the kays-document-format skill).
 
 Roland Kays wants prose deliverables as **Word .docx**, not markdown. Markdown
 renders as unformatted plain text in his editing and co-author workflow, so a

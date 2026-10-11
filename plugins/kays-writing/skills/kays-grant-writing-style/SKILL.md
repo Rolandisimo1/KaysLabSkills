@@ -1,13 +1,12 @@
 ---
 name: kays-grant-writing-style
-description: "my writing style for grant proposals"
+description: "Roland Kays's voice and structure for research proposals. Use when drafting, revising, or reviewing any part of a grant: project summary, project description or narrative, specific aims, objectives and hypotheses, background and significance, approach and methods, preliminary results, broader impacts, data management or mentoring plans, budget justification text, letters of collaboration, pre-proposals and white papers, or a response to previous reviews for a resubmission. Applies to NSF, NASA, NIH, DoD, DoI and USGS, state agencies, and foundations, and to turning a research idea into fundable aims. Apply together with kays-voice-core."
 ---
 
-Name: Grant proposal — Kays voice
+# Grant proposal: Kays voice
 
-Description: Research proposals and specific-aims / project narratives for federal and agency funders (NSF, NASA, DoD/DoI agencies, foundations), including resubmissions.
+Scope: Research proposals and specific-aims / project narratives for federal and agency funders (NSF, NASA, DoD/DoI agencies, foundations), including resubmissions.
 
-Instructions:
 Write persuasively and forward-looking, in active first-person plural ("We propose," "We will," "Our team"). Everything is framed around what will be done and why it matters, not what has been found.
 
 Open the narrative by naming a specific, important limitation or gap in current knowledge, stated as a problem the field is stuck on. Then pivot with a clear "We propose to solve this problem by..." sentence that names the approach. State an overarching hypothesis explicitly, and lay out the science questions or specific aims as a short numbered list phrased as questions or objectives.
@@ -26,82 +25,11 @@ Keep the technical approach precise but subordinate to the argument: enough meth
 
 Hedge on outcomes appropriately ("this approach might allow," "has the potential to") while staying confident about the plan and the team. Name contingency and alternative pathways where feasibility is a likely reviewer concern.
 
-## Avoid: the hedged-negation / abstraction-as-agent voice
+## Shared voice rules
 
-A recurring failure mode that reads as generically machine-written even when it
-passes every other check (no em-dashes, no British spellings, no "delve" or
-"tapestry"). It is not a vocabulary problem — it is a small set of rhetorical
-substitutions for direct, declarative statement. Scan a draft for these eight
-patterns before finalizing:
-
-**1. Negative-assertion framing.** Making a claim by stating what was NOT done
-or NOT found, instead of stating the finding directly.
-- Avoid: "I do not report a single number for how much of the variation is
-  regional rather than local."
-- Prefer: state what the data DOES support, and why the single number isn't
-  meaningful, as its own plain sentence — not as a negation.
-- Avoid: "I do not claim that a shift of that size carries a measurable cost
-  to the animal."
-- Prefer: "Whether a shift of this size carries a measurable cost to the
-  animal is untested here." (Or cut the sentence if it adds only a disclaimer
-  with no content.)
-
-**2. Abstraction-as-agent.** Giving an abstract noun (a baseline, a
-correction, an effect) the grammatical role of an active subject performing
-an action on another abstraction (meaning, interpretation, weight).
-- Avoid: "A continental baseline changes what a future observation can mean."
-- Prefer: "Future surveys now have this baseline to compare against."
-- Avoid: "[Effects] are the ones that carry real interpretive weight."
-- Prefer: name directly what the effects show or why they matter more than
-  the others.
-
-**3. The "reading rather than merely X" scaffold.** Interpretation-as-reading
-metaphor plus a "rather than merely" downgrade, used to manufacture nuance
-instead of stating the point.
-- Avoid: "...has a biological reading rather than a merely technical one."
-- Prefer: "...is a biological result, not a technical artifact."
-
-**4. Procedural/financial metaphor for method choices.** Reaching for
-accounting or bureaucratic metaphors ("bookkeeping," "housekeeping") to frame
-a step as dispensable or essential without saying so directly.
-- Avoid: "A measurement-error correction ... is not optional bookkeeping."
-- Prefer: "A measurement-error correction is necessary here: skipping it
-  [state the concrete consequence]."
-
-**5. Manufactured emphasis via do-support.** Inserting "do" before a verb in
-a plain declarative sentence purely for stress, with no contrast or negation
-in play.
-- Avoid: "Environmental conditions do move activity."
-- Prefer: "Environmental conditions move activity." (Reserve "do move" for
-  genuine contrast: "...move activity despite the weak correlation.")
-
-**6. Redundant restatement by negation.** Following a positive claim with its
-logical negation for emphasis, adding no new information.
-- Avoid: "Human density moves species in opposite directions ... they do not
-  move together."
-- Prefer: keep the first sentence; cut the second, or replace it with a
-  sentence that adds a genuinely new fact.
-
-**7. Embedded meta-hedging.** Disclosing a claim's epistemic status inside
-the same sentence as the claim, via a "so I present this as X rather than Y"
-subordinate clause, instead of a plain, separate caveat sentence.
-- Avoid: "I assigned this grouping after seeing the pattern, so I present it
-  as an explanation to be tested rather than a confirmed result."
-- Prefer: two sentences. State the grouping. Then, separately: "This grouping
-  was chosen after seeing the pattern in the data and should be treated as a
-  hypothesis for a future test, not a confirmed result."
-
-**8. Fragment-as-pivot in technical prose.** A single clipped sentence ("My
-exposure also differs.") used as a paragraph-opening pivot for drama. This is
-a legitimate tool in narrative writing (see kays-popular-writing) but reads as
-false weight in a manuscript, memo, or proposal — expand it into a full
-sentence that carries its own content.
-
-None of these constructions is wrong in isolation. The failure mode is
-reaching for one of them as a substitute for a plain sentence with a concrete
-subject and an active verb. When a sentence's grammatical subject is an
-abstraction and its verb is one of mental action (means, shows, argues,
-suggests, carries weight), or when a sentence states what was NOT done rather
-than what was, rewrite it plain before moving on.
+Apply kays-voice-core to every draft (load it if it is not already loaded). It holds the
+rules common to all of Roland's writing: the eight hedged-negation patterns, no
+self-grading sentences, evidence in place of rigor claims, one-sentence limitations,
+em dashes, length, and .docx delivery. Run its pre-delivery scan before handing over a draft.
 
 Avoid: vague significance claims not tied to the funder's goals, methods described in isolation from the aim they serve, and burying feasibility evidence.

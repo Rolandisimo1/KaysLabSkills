@@ -1,18 +1,15 @@
----
-name: humanizer_academic
-description: Remove signs of AI-generated writing from academic medical papers. Use when editing or reviewing manuscripts to make them sound more natural and professionally written. Based on Wikipedia's "Signs of AI writing" guide, adapted for medical literature.
-metadata:
-  authored_via: "claude-science"
-  published_by: "user"
-  published_at: "2026-09-20T19:59:45.064Z"
-  authored_by: "user"
-  authored_at: "2026-09-20T19:59:45.054Z"
-  last_modified_by: "user"
-  last_modified_at: "2026-09-20T19:59:45.054Z"
----
-# Humanizer Academic: Remove AI Writing Patterns from Medical Papers
+# AI writing patterns: full edit-pass catalog
 
-You are a medical writing editor that identifies and removes signs of AI-generated text to make academic manuscripts sound more natural and professionally written. This guide is based on Wikipedia's "Signs of AI writing" page, adapted for medical and scientific literature.
+Reference for kays-voice-core. Adapted from the humanizer_academic skill, which was
+written for medical papers and based on Wikipedia's "Signs of AI writing" guide.
+Its medical author profile has been removed; Roland's voice rules in
+kays-voice-core/SKILL.md take precedence over anything below, including the
+passive-voice Methods convention. SOURCE AND LICENSE UNCONFIRMED: check before
+making this repository public.
+
+## Kept from the removed author profile
+
+**Keep short sentences that state a claim outright (author's explicit preference).** A short declarative that carries the paragraph's claim or marks a turn in the argument must stay short, even when several occur close together: "Two consequences follow." / "The largest difference was cost." / "Speed differed less." / "Performance also depended on the prompt." Do NOT merge them into the neighboring sentence with a semicolon, "which", or a connective to satisfy the rhythm check; merging buries the claim inside a long sentence and softens it. Two questions decide the case: (1) does the short sentence state a claim, a finding, or a turn (keep), or is it only drama with no content, such as "The answer? Surprising." (remove); (2) was it already in the author's draft (keep) or would you be introducing it (do not introduce new ones). Rhythm diversity is to be obtained elsewhere in the paragraph.
 
 ## Your Task
 
@@ -25,37 +22,6 @@ When given text to humanize:
 5. **Maintain academic tone** - Match the formal, objective style of medical journals
 6. **Be specific** - Replace vague claims with concrete data and citations
 7. **Follow the two-pass process** - Draft, self-audit for remaining AI tells, then finalize (see Process section)
-
----
-
-## Voice Calibration (Author Reference Profile)
-
-The primary author writes medical research papers in a characteristic style (based on analysis of pre-2023 published work). When humanizing, replace AI patterns with constructions that match this profile, not with generic "human-sounding" alternatives.
-
-**Author's sentence-length pattern:** Predominantly medium-to-long sentences (20-40 words), with occasional short sentences for emphasis. Rarely uses very short (<10 word) sentences. Long sentences are typically structured with semicolons or conjunctions rather than broken into fragments.
-
-**Keep short sentences that state a claim outright (author's explicit preference).** A short declarative that carries the paragraph's claim or marks a turn in the argument must stay short, even when several occur close together: "Two consequences follow." / "The largest difference was cost." / "Speed differed less." / "Performance also depended on the prompt." Do NOT merge them into the neighboring sentence with a semicolon, "which", or a connective to satisfy the rhythm check; merging buries the claim inside a long sentence and softens it. Two questions decide the case: (1) does the short sentence state a claim, a finding, or a turn (keep), or is it only drama with no content, such as "The answer? Surprising." (remove); (2) was it already in the author's draft (keep) or would you be introducing it (do not introduce new ones). Rhythm diversity is to be obtained elsewhere in the paragraph.
-
-**Author's connective repertoire (use these naturally):**
-- "In addition," / "Additionally," (once per paragraph)
-- "On the other hand,"
-- "However," / "Meanwhile,"
-- "Given that..." / "With this background,"
-- "Thus," / "Taken together,"
-- "Regarding the..."
-- "While [X], it may [Y]" (concessive-contrastive)
-- "It should be noted that..."
-
-**Author's structural habits:**
-- Heavy citation density: nearly every claim has parenthetical references
-- Limitations section uses numbered enumeration: "First,... Second,... Third,..."
-- Conclusion opens with "In conclusion," followed by summary then qualification
-- Semicolons used to join related clauses within a sentence
-- Methods sections are predominantly passive; Discussion mixes passive with "we"
-- Hedging is calibrated: single-layer ("may be," "suggests that"), not multi-layer
-- No em dashes (author does not use them)
-
-**How to apply:** When removing an AI pattern, ask "how would the author have written this?" and draw from the repertoire above. Do not introduce constructions the author would not use (e.g., staccato drama, rhetorical questions in Discussion, first-person opinion statements).
 
 ---
 
@@ -649,7 +615,7 @@ Use "associated with" only when the relationship is genuinely a statistical/obse
 **What NOT to change:**
 - Do not alter technical vocabulary, data, or meaning
 - Do not introduce staccato drama (multiple very short sentences in a row for rhetorical effect)
-- Do not merge an existing short sentence that states a claim outright ("The largest difference was cost.") into its neighbor; see Voice Calibration. "Do not introduce" applies to new drama, not to the author's own short claim sentences
+- Do not merge an existing short sentence that states a claim outright ("The largest difference was cost.") into its neighbor; see "Kept from the removed author profile" above. "Do not introduce" applies to new drama, not to the author's own short claim sentences
 - Do not break the connective structure (Pattern 27/30/31 still apply)
 - Do not change the voice (active/passive) of the original unless Pattern 9 applies
 
@@ -674,7 +640,7 @@ Use "associated with" only when the relationship is genuinely a statistical/obse
 3. Identify and fix all vocabulary/phrase-level patterns (Patterns 1-33). Whenever a rewrite removes a transition or linking clause, restore the logical link per Pattern 30 (never bare-delete). When removing an ornamental adverb (Pattern 29), always restructure the surrounding sentence (Pattern 34 interaction).
 4. Ensure the draft:
    - Sounds natural when read in an academic context
-   - Matches the author's voice profile (Voice Calibration section)
+   - Matches Roland's voice rules (kays-voice-core/SKILL.md)
    - Uses precise, specific language with consistent terminology (Pattern 11)
    - Maintains data integrity (numbers, statistics, findings)
    - Uses simple constructions (is/are/has) where appropriate
