@@ -9,7 +9,7 @@ related skills; install only the groups you use.
 | Plugin | Skills | Audience |
 |---|---|---|
 | `research-workflow` | science-workflow-development | everyone writing analysis code |
-| `camera-traps` | camera-trap-qc, camtrap-interaction-analysis, wildlife-cv-pipeline | lab |
+| `camera-traps` | camera-trap-qc, camera-trap-activity-analysis, camtrap-interaction-analysis, wildlife-cv-pipeline | lab |
 | `movement` | gps-tracking-analysis, biologging-acc-imu | lab |
 | `modeling` | hierarchical-ecological-models, sdm-paper-verification | lab |
 | `data-and-compute` | mdd-taxonomy, earth-engine, geocode-news, hazel-hpc | lab |

@@ -7,3 +7,5 @@ qc	I have a camera trap deployments table with deployment_id, start_time, end_ti
 workflow	I am starting a new R project to model coyote occupancy from our camera trap data. Set up how we should organize the code and track progress.
 resume	Picking up the diel activity analysis again after two weeks. The cluster says the last batch of model fits completed. What should we do next?
 push	The new figure functions work. Save this code and get it up to GitHub.
+gbif	I downloaded GBIF and Movebank records for North American carnivores and want to combine them with our Snapshot USA camera data into one species table.
+activity	Are coyotes more nocturnal at camera sites with higher human population density? We have detections from about 300 sites.

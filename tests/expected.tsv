@@ -7,3 +7,5 @@ qc	camera-traps:camera-trap-qc
 workflow	research-workflow:science-workflow-development
 resume	research-workflow:science-workflow-development
 push	research-workflow:science-workflow-development
+gbif	data-and-compute:mdd-taxonomy
+activity	camera-traps:camera-trap-activity-analysis
