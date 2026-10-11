@@ -1,6 +1,6 @@
 {
   "name": "data-and-compute",
-  "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, NCSU Hazel HPC, and reproducible-pipeline house rules",
+  "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, and NCSU Hazel HPC",
   "author": {
     "name": "Kays Lab"
   }
