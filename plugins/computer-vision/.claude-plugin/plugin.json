@@ -1,0 +1,7 @@
+{
+  "name": "computer-vision",
+  "description": "Computer vision for camera-trap and other wildlife imagery: image collection, labeling, detection and classification models, large image pipelines",
+  "author": {
+    "name": "Kays Lab"
+  }
+}

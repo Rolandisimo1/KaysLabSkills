@@ -9,11 +9,12 @@ related skills; install only the groups you use.
 | Plugin | Skills | Audience |
 |---|---|---|
 | `research-workflow` | science-workflow-development | everyone writing analysis code |
-| `camera-traps` | camera-trap-qc, camera-trap-activity-analysis, camtrap-interaction-analysis, wildlife-cv-pipeline | lab |
+| `camera-traps` | camera-trap-qc, camera-trap-activity-analysis, camtrap-interaction-analysis | lab |
+| `computer-vision` | wildlife-cv-pipeline | lab |
 | `movement` | gps-tracking-analysis, biologging-acc-imu | lab |
-| `modeling` | hierarchical-ecological-models, sdm-paper-verification | lab |
-| `data-and-compute` | mdd-taxonomy, earth-engine, geocode-news, hazel-hpc | lab |
-| `kays-writing` | kays-voice-core, kays-grant-writing-style, kays-scientific-writing-style, kays-popular-writing, kays-analysis-report-standards, kays-manuscript-revision-tracking | Roland, and anyone drafting text for him |
+| `modeling` | hierarchical-ecological-models | lab |
+| `data-and-compute` | mdd-taxonomy, earth-engine, geocode-locations, hazel-hpc | lab |
+| `kays-writing` | kays-writing-style, kays-analysis-report-standards | Roland, and anyone drafting text for him |
 | `kays-personal` | wildlife-pop-env | Roland only (Claude Science) |
 | `kays-projects` | camera-inat-stream-agreement, diel-activity-conventions | Roland only; each should move into its project's repo |
 

@@ -1,9 +1,6 @@
----
-name: kays-grant-writing-style
-description: "Roland Kays's voice and structure for research proposals. Use when drafting, revising, or reviewing any part of a grant: project summary, project description or narrative, specific aims, objectives and hypotheses, background and significance, approach and methods, preliminary results, broader impacts, data management or mentoring plans, budget justification text, letters of collaboration, pre-proposals and white papers, or a response to previous reviews for a resubmission. Applies to NSF, NASA, NIH, DoD, DoI and USGS, state agencies, and foundations, and to turning a research idea into fundable aims. Apply together with kays-voice-core."
----
+# Grant proposals: structure and conventions
 
-# Grant proposal: Kays voice
+Reference for kays-writing-style. The voice rules in SKILL.md apply on top of everything here.
 
 Scope: Research proposals and specific-aims / project narratives for federal and agency funders (NSF, NASA, DoD/DoI agencies, foundations), including resubmissions.
 
@@ -24,12 +21,5 @@ Organize with clear numbered or named sections (Background, Conceptual Framework
 Keep the technical approach precise but subordinate to the argument: enough method detail to convince a reviewer it will work, tied back to the aim it serves, without drifting into a full manuscript methods section.
 
 Hedge on outcomes appropriately ("this approach might allow," "has the potential to") while staying confident about the plan and the team. Name contingency and alternative pathways where feasibility is a likely reviewer concern.
-
-## Shared voice rules
-
-Apply kays-voice-core to every draft (load it if it is not already loaded). It holds the
-rules common to all of Roland's writing: the eight hedged-negation patterns, no
-self-grading sentences, evidence in place of rigor claims, one-sentence limitations,
-em dashes, length, and .docx delivery. Run its pre-delivery scan before handing over a draft.
 
 Avoid: vague significance claims not tied to the funder's goals, methods described in isolation from the aim they serve, and burying feasibility evidence.

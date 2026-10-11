@@ -9,3 +9,6 @@ resume	Picking up the diel activity analysis again after two weeks. The cluster 
 push	The new figure functions work. Save this code and get it up to GitHub.
 gbif	I downloaded GBIF and Movebank records for North American carnivores and want to combine them with our Snapshot USA camera data into one species table.
 activity	Are coyotes more nocturnal at camera sites with higher human population density? We have detections from about 300 sites.
+geo	I have 300 museum specimen records with locality text like '5 mi NE of Boone, Watauga Co.' and need latitude, longitude and uncertainty for each.
+cv	We have 2 million new camera trap images to label. Help me set up MegaDetector and a Label Studio review queue.
+overlap	Compare daily activity overlap between coyotes and deer at our sites; coyotes have 40 detections and deer 400.

@@ -127,5 +127,4 @@ these rules in the prompt; do not assume it knows them.
 ## Related skills
 
 - Writing up results: `kays-analysis-report-standards`.
-- Tracking open requests across turns: `kays-manuscript-revision-tracking`.
 - Running jobs on the NCSU cluster: `hazel-hpc`.

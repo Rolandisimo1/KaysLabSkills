@@ -1,6 +1,6 @@
 {
   "name": "camera-traps",
-  "description": "Camera-trap data QC, species-interaction analysis, and wildlife computer-vision pipelines",
+  "description": "Camera-trap data QC, activity-pattern analysis, and species-interaction analysis",
   "author": {
     "name": "Kays Lab"
   }

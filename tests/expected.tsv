@@ -1,11 +1,14 @@
-abstract	kays-writing:kays-scientific-writing-style kays-writing:kays-voice-core
-aims	kays-writing:kays-grant-writing-style kays-writing:kays-voice-core
-blog	kays-writing:kays-popular-writing kays-writing:kays-voice-core
-edit	kays-writing:kays-voice-core
-email	kays-writing:kays-voice-core
+abstract	kays-writing:kays-writing-style
+aims	kays-writing:kays-writing-style
+blog	kays-writing:kays-writing-style
+edit	kays-writing:kays-writing-style
+email	kays-writing:kays-writing-style
 qc	camera-traps:camera-trap-qc
 workflow	research-workflow:science-workflow-development
 resume	research-workflow:science-workflow-development
 push	research-workflow:science-workflow-development
 gbif	data-and-compute:mdd-taxonomy
 activity	camera-traps:camera-trap-activity-analysis
+geo	data-and-compute:geocode-locations
+cv	computer-vision:wildlife-cv-pipeline
+overlap	camera-traps:camera-trap-activity-analysis

@@ -1,6 +1,6 @@
 ---
 name: camera-trap-activity-analysis
-description: "Methods for analyzing animal activity patterns (diel activity curves, nocturnality, peak activity time, activity overlap) from camera-trap detections, and for regressing activity or other per-site measures on covariates across many sites. Covers sun-anchored time, circular statistics for peak time, how many detections a site needs, a reliability screen, the counting-noise null for predictors built from detection counts, capping regression weights, checking effects against spatial confounding, block cross-validation without leakage, and mapping predictions. Use when fitting or comparing activity curves, asking whether activity shifts with human disturbance, predators, habitat, or climate, building site-level regressions from camera data, or mapping a camera-derived measure. Run camera-trap-qc on the data first."
+description: "Methods for analyzing animal activity patterns from camera-trap detections (diel activity curves, nocturnality, peak activity time, activity overlap and activity level) and for regressing activity or other per-site measures on covariates across many sites. Covers filtered vs unfiltered detections (activity incidence vs intensity) and the independence interval, sun-anchored time, circular statistics, overlap estimators, how many detections a site needs, a reliability screen, the counting-noise null for count-derived predictors, weight capping, spatial confounding, block cross-validation, and mapping. Use when fitting or comparing activity curves, choosing an independence interval, comparing activity between species, seasons or sites, asking whether activity shifts with people, predators, habitat or climate, or mapping a camera-derived measure. Run camera-trap-qc on the data first."
 ---
 
 # Camera-trap activity analysis
@@ -27,6 +27,41 @@ per-bin effort offset needed for sun-anchored time.
   variogram distance and cross-validation error on it uses circular arithmetic.
   A linear difference across midnight is wrong by up to 12 hours. Draw it only
   with a cyclic colormap. This caused two separate bugs in one project.
+
+## Choosing the activity measure
+
+- **Filtered and unfiltered detections measure different things.** Filtering
+  to independent events (one record per species per camera within an
+  interval) gives how often a species is present at each time of day.
+  Unfiltered detections also count groups and animals that linger (feeding,
+  area-restricted search). Lab terms: **activity incidence** (filtered) and
+  **activity intensity** (unfiltered). Name the filter and its interval in
+  every figure and methods section. The published disagreement over
+  independence filters (Peral et al. 2022 and the reply) comes from treating
+  the two as one quantity; both can be right.
+- **The ratio of intensity to incidence by time of day is a result in
+  itself**: it shows when animals group or linger. Group size and dwell time
+  both vary across the day.
+- **The independence interval is also a group-size rule.** Records closer
+  together than the interval are merged, so the same choice sets how many
+  animals one detection represents. State it, and rerun with a second
+  interval when a conclusion depends on grouping.
+- Wildlife Insights sequences use a 1-minute gap; many activity studies use 30
+  or 60 minutes. Report which one was used.
+- Temporal autocorrelation between detections at one camera decays quickly,
+  but estimating it needs high abundance; do not rely on it for rare species.
+
+## Comparing activity between groups or sites
+
+- **Overlap coefficient** (overlap package; Ridout and Linkie 2009): use the
+  Dhat1 estimator when the smaller sample has fewer than about 50 detections
+  and Dhat4 above about 75; give bootstrap confidence intervals (at least 1000
+  smoothed bootstrap samples).
+- **Activity level** (proportion of the day active; Rowcliffe et al. 2014,
+  activity package) assumes every individual is active at the daily peak.
+  Compare it between groups; do not read it as an absolute time budget.
+- **Compare curves in sun time** when sites span latitudes or seasons: in
+  clock time, day length changes the curve's shape.
 
 ## How much data a site needs
 

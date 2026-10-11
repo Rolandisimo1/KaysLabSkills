@@ -1,6 +1,6 @@
 {
   "name": "modeling",
-  "description": "Hierarchical occupancy/abundance/SDM modeling and SDM paper verification",
+  "description": "Hierarchical occupancy, abundance, and species distribution models",
   "author": {
     "name": "Kays Lab"
   }
