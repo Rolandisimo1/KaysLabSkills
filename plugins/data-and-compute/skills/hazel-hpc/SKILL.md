@@ -175,12 +175,12 @@ cluster-side, rather than asserting a specific cause you can't verify from
 inside a job — HPC staff have GPFS/network instrumentation you don't, and a
 factual report gets a more useful answer than a leading guess.
 
-## Relaying between Roland and an agent working on Hazel
+## Relaying between the user and an agent working on Hazel
 
 Work on Hazel usually runs through a second agent (Claude Code) with its own
-session there, and Roland is the only channel between the two: he pastes its
-reports in and pastes prompts back. **His attention is the scarce resource in
-that loop, and he has said so twice** -- "I don't want trivial conversations
+session there, and the user is the only channel between the two: they paste its
+reports in and paste prompts back. **Their attention is the scarce resource in
+that loop, and Roland has said so twice** -- "I don't want trivial conversations
 between you two to take up my time", and later, of a message that was mostly
 confirmations, "don't waste my time".
 
@@ -218,7 +218,7 @@ item, or into the write-up when results land.
 Only draft a paste-ready prompt when it carries a **decision or a changed
 instruction**. Don't draft one to acknowledge good work, confirm a plan already
 agreed, or pass along a distinction the other agent will handle correctly
-anyway. When a prompt is warranted, put the blocking item first -- Roland may
+anyway. When a prompt is warranted, put the blocking item first -- the user may
 send only the first paragraph.
 
 If you are unsure whether something clears the bar, say plainly which single

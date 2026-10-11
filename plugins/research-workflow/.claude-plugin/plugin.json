@@ -1,0 +1,7 @@
+{
+  "name": "research-workflow",
+  "description": "How the lab develops analysis code with Claude: stay on the deliverable, keep every result in committed pipeline code, and save and push to GitHub regularly",
+  "author": {
+    "name": "Kays Lab"
+  }
+}

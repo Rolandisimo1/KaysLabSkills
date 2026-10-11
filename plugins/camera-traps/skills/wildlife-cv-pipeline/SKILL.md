@@ -1,20 +1,11 @@
 ---
 name: wildlife-cv-pipeline
-description: >-
-  Build large-scale wildlife / camera-trap / street-imagery computer-vision
-  pipelines the way Mohammad Alyetama does. Use when harvesting or scraping
-  image data at scale (Mapillary, camera traps, feeders), building a
-  Label-Studio annotation loop, training or serving YOLO/MegaDetector models,
-  estimating distance/depth from camera-trap frames, or wiring up resumable,
-  checkpointed data-engineering jobs with Parquet, DuckDB, S3, and SLURM.
-  Triggers: "download/scrape images", "Label Studio", "YOLO dataset",
-  "pre-annotations", "prediction API", "camera trap depth/distance",
-  "MegaDetector", "hard negatives".
+description: "Build large-scale computer-vision pipelines for wildlife, camera-trap, and street-view imagery: scraping or downloading images at scale (Mapillary, camera traps, feeders), Label Studio annotation loops with model pre-annotations, training and serving YOLO or MegaDetector models, hard-negative mining, estimating animal distance or depth from camera-trap frames, and resumable, checkpointed data jobs using Parquet, DuckDB, S3, and SLURM. Use when collecting or labeling image datasets, setting up a detection model or prediction API, or making a long image-processing job restartable."
 ---
 
-# Wildlife CV Pipeline (style: Alyetama)
+# Wildlife CV Pipeline
 
-Extracted from `street_dogs_mp`, `dog_detection`, `baby_animals`, and
+Patterns follow the projects of Mohammad Alyetama. Extracted from `street_dogs_mp`, `dog_detection`, `baby_animals`, and
 `dnd-calib`. The through-line: treat a research CV project as production data
 engineering — scrape at scale, keep a human in the loop through Label Studio,
 serve models efficiently, and make every long-running job resumable.

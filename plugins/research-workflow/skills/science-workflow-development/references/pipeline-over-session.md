@@ -1,9 +1,6 @@
----
-name: pipeline-over-session
-description: House rule for research code - every deliverable-producing step (figures, reports, tables, QC screens) must be a function in a committed module, not drawn ad hoc in a session. Covers input resolution by name, encoding hard-won conventions as assertions, and what a session is for. Use when producing figures or reports, when a deliverable will be regenerated, when starting or resuming an analysis project, or when tempted to rebuild something from raw data.
----
+# Pipeline over session: details
 
-# Pipeline over session
+Reference for science-workflow-development (formerly the pipeline-over-session skill).
 
 If a deliverable will ever be produced twice, it belongs in committed code.
 
@@ -41,8 +38,8 @@ Concretely:
 
 ### 1. Inputs resolve by name, not by hand-staged path
 
-A module that needs a file looks it up by filename in the artifact store, or
-takes a documented path parameter with a default. It never depends on a file
+A module that needs a file looks it up by filename (in Claude Science, in the
+artifact store), or takes a documented path parameter with a default. It never depends on a file
 that happened to be in someone's workspace.
 
     INPUTS = {"sites": "site_analysis_table_v2.csv", ...}
@@ -84,8 +81,8 @@ a comment saying why, so the next iteration does not re-litigate them.
 
 ### 4. Commit before the session ends
 
-Code that exists only in a workspace is lost. Write it to the repository and
-commit locally. Do not push; see `local-commit-never-push`.
+Code that exists only in a workspace is lost. Write it to the repository,
+commit, and push following the rules in SKILL.md section 3.
 
 ## What a session is for
 
@@ -96,8 +93,9 @@ again.
 
 ## Recovering a lost figure
 
-If a figure's code was never committed, do not redraw it from scratch. Read the
-producing code out of the artifact's lineage first:
+If a figure's code was never committed, do not redraw it from scratch. In
+Claude Science, which records the code that produced each artifact, read it
+out of the artifact's lineage first (this `host` object exists only there):
 
     lin = host.lineage[version_id]
     lin["code"]        # the cell that made it

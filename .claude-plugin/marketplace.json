@@ -6,6 +6,11 @@
   },
   "plugins": [
     {
+      "name": "research-workflow",
+      "source": "./plugins/research-workflow",
+      "description": "How the lab develops analysis code with Claude: stay on the deliverable, keep every result in committed pipeline code, and save and push to GitHub regularly"
+    },
+    {
       "name": "camera-traps",
       "source": "./plugins/camera-traps",
       "description": "Camera-trap data QC, species-interaction analysis, and wildlife computer-vision pipelines"
@@ -23,7 +28,7 @@
     {
       "name": "data-and-compute",
       "source": "./plugins/data-and-compute",
-      "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, NCSU Hazel HPC, and reproducible-pipeline house rules"
+      "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, and NCSU Hazel HPC"
     },
     {
       "name": "kays-writing",
@@ -33,7 +38,7 @@
     {
       "name": "kays-personal",
       "source": "./plugins/kays-personal",
-      "description": "Roland Kays's personal workflow rules and environment setup"
+      "description": "Roland Kays's personal environment setup"
     },
     {
       "name": "kays-projects",
