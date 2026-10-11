@@ -55,7 +55,7 @@ skill. Runs vary, so use at least two runs per prompt.
 
 Measured on 2026-10-11 in Claude Code. With all eight plugins installed next
 to Roland's 39 account skills (which included old copies of many of these),
-kays-voice-core loaded for a one-sentence edit or a short email in 1 of 8
+the writing voice skill loaded for a one-sentence edit or a short email in 1 of 8
 runs; with only the writing plugin installed, 8 of 8. With the account
 duplicates turned off and the current descriptions, the edit, email, push,
 and abstract prompts loaded their intended skills in 16 of 16 runs. Keep one

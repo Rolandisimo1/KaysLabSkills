@@ -1,9 +1,6 @@
----
-name: kays-scientific-writing-style
-description: "Roland Kays's voice and structure for peer-reviewed ecology papers. Use when drafting, revising, or editing any part of a manuscript: title, abstract, significance statement, introduction, methods, results, discussion, figure legends, or cover letter, and when restructuring a draft into IMRaD or tightening a co-author's section. Covers 'Here we' framing, hypotheses with competing predictions, numbers with scale, reproducible Methods, Discussion order, calibrated hedging, giving scientific names after common names, and matching journal conventions. Topics include movement ecology, camera trapping, biodiversity informatics, and distribution and population modeling. Apply together with kays-voice-core."
----
+# Manuscripts: structure and conventions
 
-# Scientific manuscript: Kays voice
+Reference for kays-writing-style. The voice rules in SKILL.md apply on top of everything here.
 
 Scope: Peer-reviewed manuscript writing for ecology and biodiversity journals (movement ecology, camera trapping, biodiversity informatics, species distribution and population modeling).
 
@@ -49,13 +46,6 @@ mentions.
 The Significance Statement (where the target journal, e.g. PNAS, uses one) is part of the
 Abstract's scope, not a third independent scope, since it is lay-facing front matter that precedes
 and pairs with the Abstract.
-
-## Shared voice rules
-
-Apply kays-voice-core to every draft (load it if it is not already loaded). It holds the
-rules common to all of Roland's writing: the eight hedged-negation patterns, no
-self-grading sentences, evidence in place of rigor claims, one-sentence limitations,
-em dashes, length, and .docx delivery. Run its pre-delivery scan before handing over a draft.
 
 Match the target journal's conventions for spelling (British vs American), citation format (author-date vs numbered), abstract structure (single paragraph vs structured headings), and section naming. Ask which journal is being targeted if it is not stated.
 

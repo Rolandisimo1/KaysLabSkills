@@ -1,9 +1,6 @@
----
-name: kays-popular-writing
-description: "Roland Kays's popular-science voice for general audiences. Use when writing or editing a blog post, op-ed, magazine or newspaper piece, book chapter, essay, newsletter, press-release quote, YouTube or video script, museum exhibit text, social media post, or public-talk narrative about wildlife, conservation, or field science, and when turning a paper into a story for non-scientists. Covers narrative arc and hooks, study animals as named characters, plain-language explanation, coined labels and analogies, and a wry, optimistic first-person tone. Apply together with kays-voice-core."
----
+# Popular writing: structure and tone
 
-# Popular science: Kays voice
+Reference for kays-writing-style. The voice rules in SKILL.md apply on top of everything here.
 
 Scope: General-audience writing for blogs, books, and op-eds about wildlife and field science.
 
@@ -22,12 +19,5 @@ Coin memorable labels for ideas and then reuse them (e.g. "the American wildlife
 Keep the tone curious, wry, and optimistic. Let genuine wonder show. Self-deprecating humor is welcome, e.g. "If anyone asks, I'll tell them I'm looking for my dog." Use contractions freely. An occasional exclamation is fine when it's earned.
 
 Use spaced hyphens and parentheticals for quick conversational asides, matching a relaxed spoken cadence.
-
-## Shared voice rules
-
-Apply kays-voice-core to every draft (load it if it is not already loaded). It holds the
-rules common to all of Roland's writing: the eight hedged-negation patterns, no
-self-grading sentences, evidence in place of rigor claims, one-sentence limitations,
-em dashes, length, and .docx delivery. Run its pre-delivery scan before handing over a draft.
 
 Avoid: dense jargon, passive academic hedging, bureaucratic phrasing, default bullet-point structure, and throat-clearing intros. Get into the scene fast.

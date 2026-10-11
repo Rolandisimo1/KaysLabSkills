@@ -1,14 +1,22 @@
 ---
-name: kays-voice-core
-description: "Roland Kays's writing voice, required for any text written as or for Roland, however short: tightening or rewording a sentence or paragraph, editing a draft, writing an email, letter, or message, and drafting manuscripts, abstracts, grants, reviews, reviewer responses, reports, memos, blog posts, or talk scripts. Covers the banned rhetorical patterns (hedged negation, abstraction as agent, contrastive negation like 'rather than' or 'not merely', self-grading sentences), em dashes, spelling, stating limitations and rigor, length limits, .docx delivery, and a scan to run before handing over any text. Load alongside the scientific, grant, or popular writing skill for longer pieces."
+name: kays-writing-style
+description: "Roland Kays's writing voice and document structures, required for any text written as or for Roland, however short: tightening or rewording a sentence or paragraph, editing a draft, emails, letters and messages; peer-reviewed manuscripts (title, abstract, introduction, methods, results, discussion, figure legends, cover letters); grant proposals (project summary, specific aims, approach, broader impacts, data management plans, responses to previous reviews); and popular writing (blog posts, op-eds, essays, video scripts, exhibit text, talks). Covers banned rhetorical patterns (hedged negation, abstraction as agent, contrastive negation such as 'rather than' or 'not merely', self-grading sentences), em dashes, stating limitations and rigor, length limits, and .docx delivery."
 ---
 
-# Kays voice: rules for every register
+# Kays writing style
 
-These rules apply to everything Roland writes or reads from you. The register
-skills (scientific, grant, popular) add structure and tone on top. Where a
-register skill and this file disagree, the register skill wins for that
-register only; this file notes the known exceptions.
+The voice rules below apply to everything Roland writes or reads from you.
+For a longer piece, also read the reference for its type before drafting:
+
+| Writing | Read |
+|---|---|
+| Manuscript or any part of one, cover letter | `references/manuscripts.md` |
+| Grant proposal or any part of one, resubmission response | `references/grants.md` |
+| Blog, op-ed, essay, video script, exhibit text, talk | `references/popular.md` |
+| Short edits, emails, letters, memos | this file only |
+
+Where a reference and this file disagree, the reference wins for that type of
+writing only; this file notes the known exceptions.
 
 ## Sentence-level rules
 

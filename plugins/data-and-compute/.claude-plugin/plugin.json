@@ -1,6 +1,6 @@
 {
   "name": "data-and-compute",
-  "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, and NCSU Hazel HPC",
+  "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding described locations, and NCSU Hazel HPC",
   "author": {
     "name": "Kays Lab"
   }

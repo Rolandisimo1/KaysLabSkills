@@ -13,7 +13,12 @@
     {
       "name": "camera-traps",
       "source": "./plugins/camera-traps",
-      "description": "Camera-trap data QC, species-interaction analysis, and wildlife computer-vision pipelines"
+      "description": "Camera-trap data QC, activity-pattern analysis, and species-interaction analysis"
+    },
+    {
+      "name": "computer-vision",
+      "source": "./plugins/computer-vision",
+      "description": "Computer vision for camera-trap and other wildlife imagery: image collection, labeling, detection and classification models, large image pipelines"
     },
     {
       "name": "movement",
@@ -23,17 +28,17 @@
     {
       "name": "modeling",
       "source": "./plugins/modeling",
-      "description": "Hierarchical occupancy/abundance/SDM modeling and SDM paper verification"
+      "description": "Hierarchical occupancy, abundance, and species distribution models"
     },
     {
       "name": "data-and-compute",
       "source": "./plugins/data-and-compute",
-      "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, and NCSU Hazel HPC"
+      "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding described locations, and NCSU Hazel HPC"
     },
     {
       "name": "kays-writing",
       "source": "./plugins/kays-writing",
-      "description": "Roland Kays's writing voice (grants, manuscripts, popular) and how he wants analyses reported"
+      "description": "Roland Kays's writing style (manuscripts, grants, popular) and how analyses are reported to him"
     },
     {
       "name": "kays-personal",

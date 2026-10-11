@@ -1,15 +1,15 @@
 ---
-name: geocode-news
-description: "Assign geographic coordinates and calibrated uncertainty to places described in news stories (or any free text), using the museum/natural-history georeferencing standard adapted for reportage. Use whenever a task involves turning textual locality descriptions into lat/lon: geoparsing or geocoding an article, resolving ambiguous place names (\"Paris\" -> which one), grounding relative descriptions (\"20 km north of Goma\", \"off the coast of Sicily\"), batch-geocoding a corpus of stories, or producing point-radius / Darwin Core georeferences with coordinateUncertaintyInMeters. Also use to review or audit an existing geocoding pipeline against the method. Encodes the two-stage LLM-resolution + gazetteer-lookup pattern and the point-radius uncertainty model, and the single most important rule: the LLM disambiguates the name, the gazetteer supplies the coordinates. Prefer it over improvising from memory."
+name: geocode-locations
+description: "Assign coordinates and calibrated uncertainty to places described in words, in any text: field notes, museum and specimen labels, survey sheets, papers and reports, news stories, interview transcripts. Use whenever a task turns locality descriptions into latitude and longitude: resolving ambiguous place names (\"Paris\" -> which one), grounding relative descriptions (\"20 km north of Goma\", \"off the coast of Sicily\"), batch-georeferencing a set of records, or producing point-radius / Darwin Core georeferences with coordinateUncertaintyInMeters; also to review a geocoding pipeline. Core rule: the language model disambiguates the name, a gazetteer supplies the coordinates."
 ---
-# Geocoding locations in news stories
+# Geocoding described locations
 
 ## What this skill is for
 
 Two jobs, often together:
 
-1. **Build/run** a geocoding pipeline that reads free text (a news story, a
-   caption, a field report) and returns, for each place worth locating, a
+1. **Build/run** a geocoding pipeline that reads free text (field notes, a
+   specimen label, a survey sheet, a paper, a news story) and returns, for each place worth locating, a
    center coordinate plus a calibrated uncertainty radius and enough provenance
    to defend it later.
 2. **Audit** an existing geocoder against the *method*. The most common failure
@@ -46,8 +46,9 @@ street corner are all valid georeferences; they differ by radius, not by whether
 they "count." Output in **Darwin Core** terms so the result is interoperable and
 auditable. See `references/uncertainty.md`.
 
-News differs from specimens in three ways the pipeline must handle explicitly,
-covered in `references/news_specifics.md`:
+Narrative text (news stories, reports, interviews) differs from specimen labels
+in three ways the pipeline must handle explicitly, covered in
+`references/news_specifics.md`:
 - Multiple places per document, only some of which are the *story's* location.
 - Dateline / place-of-reporting vs. place-of-event (often different cities).
 - Event footprints that are areas, routes, or regions, not points.
