@@ -1,6 +1,6 @@
 ---
 name: kays-voice-core
-description: "Roland Kays's core writing voice, shared by every register. Use whenever drafting, editing, revising, or reviewing prose that Roland will send or sign, or that is written for him to read: manuscripts and abstracts, grant proposals, reviews and reviewer responses, reports and memos, methods or results write-ups, emails, letters, blog posts, talk scripts. Covers the banned rhetorical patterns (hedged negation, abstraction as agent, contrastive negation, evaluative meta-commentary), em dashes and spelling, how to state limitations and rigor, length limits, .docx delivery, and a scan to run before handing over any draft. Load it alongside kays-scientific-writing-style, kays-grant-writing-style, or kays-popular-writing, which add register-specific structure."
+description: "Roland Kays's writing voice, required for any text written as or for Roland, however short: tightening or rewording a sentence or paragraph, editing a draft, writing an email, letter, or message, and drafting manuscripts, abstracts, grants, reviews, reviewer responses, reports, memos, blog posts, or talk scripts. Covers the banned rhetorical patterns (hedged negation, abstraction as agent, contrastive negation like 'rather than' or 'not merely', self-grading sentences), em dashes, spelling, stating limitations and rigor, length limits, .docx delivery, and a scan to run before handing over any text. Load alongside the scientific, grant, or popular writing skill for longer pieces."
 ---
 
 # Kays voice: rules for every register
@@ -99,16 +99,6 @@ in place of a plain sentence with a concrete subject and an active verb. When
 a sentence's subject is an abstraction and its verb is mental action (means,
 shows, argues, suggests, carries weight), or when it states what was not done
 instead of what was, rewrite it plain.
-
-## Full edit pass for AI-sounding text
-
-When asked to "humanize" a draft, make it "sound less AI," or do a final
-line edit on a manuscript, also work through
-`references/ai-writing-patterns.md`, a catalog of 34 patterns (AI vocabulary,
-copula avoidance, rule-of-three overuse, synonym cycling, filler, layered
-hedging, sentence-rhythm uniformity). Where that catalog conflicts with this
-file, this file wins: Roland writes in active first person, including in
-Methods.
 
 ## Delivery format
 
