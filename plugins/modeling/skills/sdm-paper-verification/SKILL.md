@@ -1,6 +1,6 @@
 ---
 name: sdm-paper-verification
-description: Empirically verify methods critiques of a species distribution modeling (SDM/ENM/Maxent) paper from its data deposit. Use when the user provides a paper plus its Dryad/Zenodo code-and-data archive and wants claims checked, re-analyzed, or re-fitted rather than just reviewed - e.g. sampling-bias/target-group background design, predictor collinearity and variable-importance comparisons, cross-species significance tests ignoring phylogeny, or a corrected re-fit of all models. Triggers: "verify this critique", "check this paper's methods", "re-run with corrected bias correction", "is this SDM result an artifact".
+description: "Empirically verify methods critiques of a species distribution modeling (SDM/ENM/Maxent) paper from its data deposit. Use when the user provides a paper plus its Dryad/Zenodo code-and-data archive and wants claims checked, re-analyzed, or re-fitted rather than just reviewed - e.g. sampling-bias/target-group background design, predictor collinearity and variable-importance comparisons, cross-species significance tests ignoring phylogeny, or a corrected re-fit of all models. Triggers: \"verify this critique\", \"check this paper's methods\", \"re-run with corrected bias correction\", \"is this SDM result an artifact\"."
 ---
 
 # SDM paper verification from a data deposit
