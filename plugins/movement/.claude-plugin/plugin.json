@@ -1,0 +1,7 @@
+{
+  "name": "movement",
+  "description": "GPS/Argos telemetry and accelerometer (biologging) analysis",
+  "author": {
+    "name": "Kays Lab"
+  }
+}

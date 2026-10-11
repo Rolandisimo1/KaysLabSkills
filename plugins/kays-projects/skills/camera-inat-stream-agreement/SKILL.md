@@ -1,0 +1,241 @@
+---
+name: camera-inat-stream-agreement
+description: "Standard workflow for interpreting integrated camera-trap and iNaturalist trend models: which parameter is the reportable population trend, how to test whether the two data streams agree, and the urban-rural screen that must run on every species. Use when reporting a trend from a joint camera/iNaturalist model, when the two streams disagree, or when deciding whether a trend is ecology or an observation artifact."
+metadata:
+  authored_via: "claude-science"
+  published_by: "agent"
+  published_at: "2026-10-06T00:54:59.683Z"
+  authored_by: "agent"
+  authored_at: "2026-10-01T14:53:06.468Z"
+  authoring_session: "183aba19-810a-4a8c-beef-ca2c06d952db"
+  last_modified_by: "agent"
+  last_modified_at: "2026-10-06T00:54:59.679Z"
+---
+
+# Camera / iNaturalist stream agreement
+
+The standard workflow for trends from the joint camera-trap + iNaturalist
+occupancy-intensity model. Three things that must happen every time, and one
+model extension for when the screen flags something.
+
+## 1. Report the camera-anchored trend, never the summed one
+
+The model carries two trend parameters. `year_beta` sits in the camera
+occupancy submodel. `year_var` is an iNaturalist-only addition, and
+`total_var_beta = year_beta + year_var` is what the iNaturalist likelihood
+sees.
+
+**`year_beta` is the reportable population trend.** `year_var` is a *sink*
+that absorbs iNaturalist-specific temporal signal, which is what keeps
+`year_beta` camera-identified. Reporting `total_var_beta` reports the
+opportunistic stream's trend and is the analogue of quoting the iNaturalist
+intensity field instead of camera occupancy in the source paper.
+
+This is not a small correction. For bobcat the two differ in sign:
+`year_beta` is +1.0%/yr while `total_var_beta` is -3.4%/yr. A report built on
+the summed parameter would have stated a bobcat decline.
+
+**Convert to percent per calendar year before comparing anything.** The two
+submodels standardise their year covariate on different distributions, so the
+raw coefficients are not on a common scale and their sum mixes two scales.
+`mu`-derived trends are a THIRD quantity: a trend fitted to `mu` is the
+iNaturalist parameter attenuated by `theta1` (0.52-0.85 in practice), so it
+runs shallower than either coefficient. Any figure showing one of these must
+name which, in the figure, not only in the caption.
+
+## 2. The agreement decision rule
+
+Camera data is the gold standard; iNaturalist extends coverage but its survey
+effort is unmeasured, so it corroborates rather than carries the result.
+
+- **Streams agree** -> report the camera-anchored trend; the iNaturalist
+  stream is not under suspicion.
+- **Streams oppose in direction** -> report the camera trend and flag the
+  iNaturalist stream as questioned. Do not average them and do not pick the
+  more convenient one.
+- **The comparison is underpowered** -> report neither as agreement. A wide
+  interval is "not assessed", not "flat". Read the contrast off its
+  INTERVALS, never its signs: a camera contrast of +-12 points could not have
+  detected a difference if one existed.
+
+Report the per-stream trends and their difference with an interval, not two
+point estimates side by side.
+
+## 3. The urban-rural screen, on every species
+
+**Why it is mandatory rather than diagnostic.** The iNaturalist stream is
+about twice urban-weighted while cameras are balanced -- measured
+urban:rural sampling ratios of 2.17 for iNaturalist (bobcat 2.81, deer 2.04,
+coyote 1.67) against 0.98 for cameras. So any urban-rural difference in trend
+produces a difference between the two streams' national estimates from
+sampling composition alone, with neither stream biased. The axis is
+load-bearing for interpreting every national trend.
+
+**Use one estimator: the pooled continuous gradient on standardised
+`Human_pop`, with cells as a random effect** (random intercept AND random
+year-slope -- a random intercept alone still lets one cell drive the slope).
+Report it per stream with intervals, plus a leave-top-ten-cells-out
+concentration check.
+
+Do NOT use these, both of which failed on real data:
+
+- **Tertile contrast** -- discards the middle third and dilutes
+  tail-carried gradients. It returned -0.6 for coyote where the signal was
+  real and confined to the most urban cells.
+- **Per-cell slopes, precision-weighted** -- drops cells below a detection
+  threshold and fights the deployment weighting. It returned +3.8 for coyote,
+  which did not reproduce, and +1.6 for bobcat where pooling gave +13.8.
+
+An eightfold disagreement between estimators is a weighting and
+cell-inclusion artifact, not noise. If two estimators disagree, run the
+concentration check before believing either.
+
+**Convert the gradient to an urban-rural trend difference before believing
+it.** The screen reports percentage points of %/yr per +1 standardised unit of
+`Human_pop`, which is opaque. Multiply by the actual urban-minus-rural spread
+in that covariate -- measured at 0.44 to 0.68 units (median 0.58) across
+species for camera cells, or 0.22 for a 1-SD framing -- to get the implied
+difference in annual trend. A camera gradient of -46 becomes a 10 to 27
+percentage-point-per-year difference between urban and rural places, which
+compounded over a 16-year camera record is a 80-99% relative decline. Treat
+any implied difference beyond roughly 5 points per year as implausible as
+ecology and presumptively an artifact until the project check clears it.
+
+**Small-bodied species are the most artifact-prone on the camera side.**
+Detection of chipmunks, squirrels and similar small mammals is acutely
+sensitive to camera height, trigger speed and detection-zone geometry --
+precisely what changes when one project's cameras replace another's. Three of
+the four species the screen first flagged are small rodents. Treat a
+small-mammal camera gradient as unproven until the project fixed effect is
+run, whatever its interval says.
+
+**Why the random year-slope is not optional: camera-network composition.**
+A pooled contrast with no cell or project term reads a changing *mix* of
+cells across years as a trend. The cells that do the damage are
+high-deployment, near-zero-detection ones -- bobcat's top three urban cells
+carried 717 deployments with 7 detections, 571 with 0, and 558 with 1, each
+spanning a decade and 8-22 separate projects. As those cells enter and leave
+the pooled sample year by year, the fitted slope moves. This is also why
+leave-ONE-cell-out is not a sufficient check: dropping any single cell left
+bobcat's estimate at +12.1 to +13.9, while dropping the top ten together took
+it to +2.5. Always run the random-year-slope fit and the leave-top-N-together
+drop, not single-cell drops.
+
+Related: only 22 of bobcat's 51 camera projects span two or more years, so
+most deployments carry no within-project information at all. Report that
+count whenever a project fixed effect is used -- a wide interval there may
+mean the design cannot identify the effect rather than that the effect is
+absent.
+
+**Expect the camera arm to be the binding constraint.** Across the 15 fleet
+species screened at national level, the camera interval is 3 to 23 times wider
+than the iNaturalist interval for the same gradient (median 6x), and only 3
+species -- eastern chipmunk, eastern fox squirrel, mule deer -- yield an
+assessed verdict. Twelve are "not assessed, comparison underpowered" and one
+lacks data. So the default screen outcome is NOT agreement; it is that the
+comparison cannot be made. Read the `agreement` column rather than inferring
+from whether each gradient excludes zero, and never report an underpowered
+camera arm as corroboration or as contradiction.
+
+**Confounds to test, not assume:**
+
+- **Project turnover.** Refit the camera trend with project as a fixed
+  effect. A rise surviving within projects is ecology; one that does not is
+  camera-network turnover. Count how many projects span two or more years --
+  only those identify a within-project trend.
+- **Year coverage.** Check that urban and rural groups span comparable years.
+  If urban deployments are mostly recent, the contrast is confounded with
+  deployment timing and must be reported as such.
+
+**What a cross-species pattern can and cannot rule out.** iNaturalist effort
+is total mammal records per cell, so it reshapes IDENTICALLY for every
+species (measured: a 5.4-point urban-rural differential for bobcat and deer
+against 5.3 for coyote). A species with ample data showing no gradient is
+therefore a negative control against **effort mis-correction**. It is NOT a
+control against species-specific reporting behaviour, which is selective by
+definition -- only the camera side can test that.
+
+## 4. Model extension, when the screen flags a species
+
+A post-hoc screen cannot propagate uncertainty or let the streams disagree
+properly. Put the interaction in the model, reusing the existing
+shared-parameter/sink architecture:
+
+```r
+# camera occupancy submodel
+cloglog(psi[i]) <- ... + (year_beta + year_pop * Human_pop[cell[i]]) * year_occ[i]
+
+# iNat intensity: shared gradient plus its own sink
+total_var_beta <- year_beta + year_var
+total_pop_beta <- year_pop  + year_pop_var
+```
+
+`year_pop` is shared, so camera-identified -- the gold-standard urbanisation
+gradient. `year_pop_var` is the iNaturalist-only sink.
+
+**The sink is not optional**, because in every species screened so far the
+two streams disagree about the gradient rather than sharing it. Four species
+(eastern chipmunk, eastern fox squirrel, eastern gray squirrel, mule deer)
+have camera gradients of -14 to -46 with iNaturalist gradients near zero;
+coyote and American black bear have the reverse, iNaturalist gradients
+excluding zero with camera gradients that do not. A single shared gradient
+would force agreement in both directions and return a compromise wrong for
+each stream.
+
+Do NOT use bobcat's +9.5-versus--5.7 urban camera figures as motivation --
+they came from a pooled contrast and are withdrawn (see section 5).
+
+The payoff: the decision rule in section 2 becomes ONE parameter with a
+posterior. `year_pop_var` against zero *is* "do the streams agree about
+urbanisation" -- no estimator choice, no tertile cut, no comparing separately
+bootstrapped point estimates.
+
+**A linear interaction is adequate even for a tail-concentrated effect**,
+because standardised `Human_pop` is strongly right-skewed (skew 7.7; median
+-0.27, 90th percentile +0.01, maximum +4.53). The top cell therefore carries
+roughly 17 times the median cell's leverage, so a linear term already
+weights the urban tail heavily -- which is why the continuous gradient
+detected coyote's tail effect where the tertile contrast did not. Do not
+replace it with a post-hoc decile indicator chosen from the same data.
+
+**Use baseline-year population**, not contemporaneous. `Human_pop` is
+time-varying in the bundles (it changes in 85-92% of rows), so a naive
+`year x Human_pop` conflates "trend differs by how urban a place was" with
+"trend differs by how urban it became". Fix the covariate at its first-year
+value so the gradient means the former.
+
+**Test on three species before any fleet commitment**, and do not bundle this
+with other model changes -- if two things change at once, neither effect is
+attributable.
+
+## 5. What this workflow has found
+
+Kept as calibration for what the screen is capable of detecting.
+
+- **Bobcat**: a pooled contrast gave an urban camera increase of +13.8 points
+  (urban +9.5%/yr against rural -4.3%/yr). **It did not survive and is
+  withdrawn.** With cell random intercept AND random year-slope it is
+  +2.7 [-7.8, +14.2]; dropping the top ten urban cells gives +2.5; with
+  project as a fixed effect, +7.3 [-5.2, +16.7]. The rural -4.3 was equally
+  fragile -- it becomes +0.2 once cell slopes are free. Within cells, bobcat
+  camera trends are flat in both urban and rural places, and there is **no
+  evidence of an urbanisation-by-year interaction.** Bobcat's camera/iNat
+  divergence (+1.0 against -3.4%/yr under the union mask) remains unexplained.
+- **Coyote**: a genuine iNaturalist-side gradient confined to the most urban
+  cells. +4.8 [+0.4, +7.8] continuously within Eastern Temperate Forests,
+  collapsing to -8.2 [-37.6, +21.4] with the top decile removed; by tertile
+  it is +0.3, which is why the tertile estimator is excluded. The top decile
+  holds 55% of that region's coyote iNaturalist records in 12% of its cells.
+  **The camera comparison is NOT ASSESSED, not negative** -- the screen's own
+  verdict for coyote at both national and regional level. The camera interval
+  is 17.9 points wide against the iNaturalist arm's 5.1, so it could not have
+  detected this gradient had it been there. An earlier version of this section
+  said the camera side 'shows no tail effect, so this is iNaturalist-only';
+  that was the exact error section 2 warns against, reading a wide interval as
+  evidence of absence.
+- **White-tailed deer**: urban cameras appeared to fall relative to rural
+  (-4.1 points), but that is a pooled estimate and is **provisional** until
+  rerun with cell random slopes.
+- **Camera power is regional.** In practice only Eastern Temperate Forests
+  has enough camera data for a regional contrast; every other region returns
+  +-15 to 90 points. Report those as not assessed.

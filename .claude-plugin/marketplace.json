@@ -1,0 +1,44 @@
+{
+  "name": "kays-lab-skills",
+  "description": "Claude skills for the Kays Lab (NC State / NC Museum of Natural Sciences)",
+  "owner": {
+    "name": "Roland Kays"
+  },
+  "plugins": [
+    {
+      "name": "camera-traps",
+      "source": "./plugins/camera-traps",
+      "description": "Camera-trap data QC, species-interaction analysis, and wildlife computer-vision pipelines"
+    },
+    {
+      "name": "movement",
+      "source": "./plugins/movement",
+      "description": "GPS/Argos telemetry and accelerometer (biologging) analysis"
+    },
+    {
+      "name": "modeling",
+      "source": "./plugins/modeling",
+      "description": "Hierarchical occupancy/abundance/SDM modeling and SDM paper verification"
+    },
+    {
+      "name": "data-and-compute",
+      "source": "./plugins/data-and-compute",
+      "description": "Mammal taxonomy reconciliation, Earth Engine covariates, geocoding text, NCSU Hazel HPC, and reproducible-pipeline house rules"
+    },
+    {
+      "name": "kays-writing",
+      "source": "./plugins/kays-writing",
+      "description": "Roland Kays's writing voice (grants, manuscripts, popular) and how he wants analyses reported"
+    },
+    {
+      "name": "kays-personal",
+      "source": "./plugins/kays-personal",
+      "description": "Roland Kays's personal workflow rules and environment setup"
+    },
+    {
+      "name": "kays-projects",
+      "source": "./plugins/kays-projects",
+      "description": "Project-specific conventions for Kays lab projects (to move into each project's own repo)"
+    }
+  ]
+}

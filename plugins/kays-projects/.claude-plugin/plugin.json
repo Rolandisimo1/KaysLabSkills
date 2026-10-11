@@ -1,0 +1,7 @@
+{
+  "name": "kays-projects",
+  "description": "Project-specific conventions for Kays lab projects (to move into each project's own repo)",
+  "author": {
+    "name": "Kays Lab"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "camera-traps",
+  "description": "Camera-trap data QC, species-interaction analysis, and wildlife computer-vision pipelines",
+  "author": {
+    "name": "Kays Lab"
+  }
+}

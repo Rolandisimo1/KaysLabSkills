@@ -1,0 +1,7 @@
+{
+  "name": "modeling",
+  "description": "Hierarchical occupancy/abundance/SDM modeling and SDM paper verification",
+  "author": {
+    "name": "Kays Lab"
+  }
+}
