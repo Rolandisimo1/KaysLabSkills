@@ -1,6 +1,6 @@
 ---
 name: earth-engine
-description: Extract raster values from Google Earth Engine at point locations - point sampling, buffer statistics, categorical composition histograms, and distance-to-feature - for adding remote-sensing covariates (land cover, climate, terrain, NDVI, human footprint) to ecological or spatial models. Covers service-account authentication for headless/sandbox use, asset verification, and choosing buffer radii from point spacing. Includes MapBiomas Brazil land cover as a worked example.
+description: "Extract raster values from Google Earth Engine at point locations: point sampling, buffer statistics, categorical land-cover composition, and distance to the nearest feature, for adding remote-sensing covariates (land cover, climate, terrain, NDVI, human footprint, MapBiomas) to occupancy, SDM, or other spatial models. Covers service-account authentication for headless or sandbox use, checking that assets exist, and choosing buffer radii from point spacing. Use when a model needs environmental covariates at camera, GPS, or survey locations, or when an Earth Engine script fails to authenticate or returns empty values."
 ---
 
 # Google Earth Engine point extraction
