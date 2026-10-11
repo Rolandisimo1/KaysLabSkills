@@ -8,13 +8,14 @@ related skills; install only the groups you use.
 
 | Plugin | Skills | Audience |
 |---|---|---|
+| `research-workflow` | science-workflow-development | everyone writing analysis code |
 | `camera-traps` | camera-trap-qc, camtrap-interaction-analysis, wildlife-cv-pipeline | lab |
 | `movement` | gps-tracking-analysis, biologging-acc-imu | lab |
 | `modeling` | hierarchical-ecological-models, sdm-paper-verification | lab |
-| `data-and-compute` | mdd-taxonomy, earth-engine, geocode-news, hazel-hpc, pipeline-over-session | lab |
+| `data-and-compute` | mdd-taxonomy, earth-engine, geocode-news, hazel-hpc | lab |
 | `kays-writing` | kays-voice-core, kays-grant-writing-style, kays-scientific-writing-style, kays-popular-writing, kays-analysis-report-standards, kays-manuscript-revision-tracking | Roland, and anyone drafting text for him |
-| `kays-personal` | local-commit-never-push, wildlife-pop-env | Roland only |
-| `kays-projects` | isdm-project-focus, camera-inat-stream-agreement, diel-activity-conventions | Roland only; each should move into its project's repo |
+| `kays-personal` | wildlife-pop-env | Roland only (Claude Science) |
+| `kays-projects` | camera-inat-stream-agreement, diel-activity-conventions | Roland only; each should move into its project's repo |
 
 ## Install
 
@@ -22,7 +23,8 @@ related skills; install only the groups you use.
 `gh auth login`, then `gh auth setup-git`):
 
 ```
-/plugin marketplace add <owner>/lab-skills
+/plugin marketplace add Rolandisimo1/KaysLabSkills
+/plugin install research-workflow@kays-lab-skills
 /plugin install camera-traps@kays-lab-skills
 ```
 

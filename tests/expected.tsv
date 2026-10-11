@@ -4,3 +4,6 @@ blog	kays-writing:kays-popular-writing kays-writing:kays-voice-core
 edit	kays-writing:kays-voice-core
 email	kays-writing:kays-voice-core
 qc	camera-traps:camera-trap-qc
+workflow	research-workflow:science-workflow-development
+resume	research-workflow:science-workflow-development
+push	research-workflow:science-workflow-development
