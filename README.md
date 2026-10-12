@@ -4,7 +4,13 @@ Claude skills for the Kays Lab (NC State University / NC Museum of Natural
 Sciences), packaged as a Claude plugin marketplace. Each plugin is a group of
 related skills; install only the groups you use.
 
+## How the lab uses these skills
+
+![How the Kays Lab uses Claude skills](docs/images/kays-lab-claude-setup.png)
+
 ## Plugins
+
+![Kays Lab plugins and skills](docs/images/kays-lab-skills-map.png)
 
 | Plugin | Skills | Audience |
 |---|---|---|
