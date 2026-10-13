@@ -156,6 +156,47 @@ change). These are public pages, reachable by a normal HTTPS GET (request
 - **IT Service Portal for HPC** (linked from `news.php`) — the authoritative
   place for currently-known issues; requires NCSU login, not fetchable
   directly.
+- **Two schedulers ran at once during 2026.** Slurm became the production
+  scheduler on 17 August 2026 and LSF was retiring at the end of that Fall
+  semester, both carrying real load (12 Oct 2026: Slurm 1,611 running / 782
+  pending; LSF 1,210 running / 7,125 pending). Worth knowing, but **do not
+  reach for it to explain idle nodes.** That inference was made once and
+  checked, and it was wrong: the idle capacity was in Slurm's own `compute`
+  partition, not on the LSF side.
+- **Diagnosing "lots of idle CPUs but our jobs will not start".** Check these
+  before forming any theory, and prefer `sinfo`/`scontrol` output over the
+  public status pages, whose node counts did not reconcile with Slurm's:
+  - `sinfo -R` for drained/down nodes and their stated reasons.
+  - `scontrol show reservation --all` for reservations hidden from the default
+    listing. In the October 2026 case this returned "No reservations in the
+    system", which rules the explanation out rather than confirming it.
+  - `scontrol show node <node>` on a node with free CPUs. A state of
+    **`MIXED+PLANNED` with no Reason set** means Slurm is holding that node for
+    a higher-priority pending job it has already promised a start time to. In
+    October 2026, 525 of 557 idle CPUs sat on 78 such nodes.
+  - `sacctmgr show qos` for the QOS a job runs under. Caps can block a job from
+    capacity that looks free: Hazel's `normal` QOS carried
+    `GrpTRES gres/cpu:sapphirerapids=0`, a hard zero on one CPU generation.
+    Check whether the held nodes are of a type the job's QOS is barred from.
+  - Memory, not just CPUs. A node can show free CPUs while nearly all its
+    memory is allocated, so it cannot take the job.
+- **Every queued job reporting the SAME `squeue --start` estimate**, whatever
+  its wall limit, usually means they are all waiting on the same event rather
+  than on a backfill window each could fit. In the October 2026 case HPC staff
+  confirmed the cause: the idle cores and memory were on nodes being held for
+  **higher-priority parallel (multi-node) jobs**. Nothing was faulty. Single-core
+  jobs wait behind promised multi-node allocations because the scheduler will not
+  fragment a node it has committed. Shortening wall limits does not release such
+  jobs; it only helps short diagnostics backfill onto genuinely free nodes.
+- **`squeue --start` estimates are pessimistic and they move.** Staff noted that
+  parallel jobs often finish before their requested wall clock, so real starts
+  come earlier, while newly submitted work pushes them later. One ticket moved 22
+  of 25 jobs about four days earlier than first projected. Do not plan a deadline
+  on a projected start without saying it is a projection.
+- **Priority is visible in `squeue -o "%Q"` and explains split behaviour.** When
+  some jobs have a node assigned and others show `(null)` with a later date, the
+  ones with no node are in a lower priority band and are not yet matched to
+  hardware. Jobs in the same band generally start together.
 - Login banner: Hazel prints planned-maintenance/status messages at every
   interactive login — actually read it rather than skipping past, especially
   before filing a ticket.
@@ -165,9 +206,15 @@ show network/interconnect and job-queue saturation, not filesystem I/O
 health directly. So elevated utilization is suggestive, not proof, of a
 filesystem-contention explanation.
 
-**Escalating to HPC staff:** email `help@ncsu.edu` — this generates a
-ServiceNow ticket for HPC staff (per their own instructions when they contact
-you about policy issues). When reporting an unexplained slowdown, lead with
+**Escalating to HPC staff: Roland sends the email, never you.** The address
+is `help@ncsu.edu`, which generates a ServiceNow ticket for HPC staff. Your job
+is to draft the message and hand it to him as plain text he can paste into his
+own mail client. He has stated this as a standing rule: Claude and Claude Code
+never send email on his behalf, and he does not want to be asked again. Never
+write an instruction to another agent telling it to send a message, and never
+write "send the email" when you mean "draft it for Roland".
+
+When reporting an unexplained slowdown, lead with
 what you've already ruled out (unmodified script, same env by package
 timestamp, same NIMBLE/R version, same node hardware generation, job's own
 CPU efficiency near 100%) and ask an open question about what changed
