@@ -38,6 +38,21 @@ is read only after that decision.
 - Do not put data, credentials, or unpublished results in a skill.
 - Mark anything untested as UNVALIDATED in the skill and the commit message.
 
+## Edits made inside Claude Code or Claude Science
+
+A skill is used from two places besides this repo: Claude Code's account skills
+and the Claude Science skill store. An edit made in one of those and not
+mirrored here is invisible to the rest of the lab, and is reverted the next time
+someone reinstalls the plugin. The repo is the canonical copy.
+
+Mirror the edit into `plugins/<group>/skills/<skill-name>/` in the same working
+session that made it, and diff rather than overwrite, since the repo copy may
+carry someone else's change.
+
+`scripts/skill-sync.sh` reports drift between this repo and both stores, and
+copies a single named skill in either direction after showing the diff. It must
+run natively, since the stores sit outside any sandbox, and it is UNVALIDATED.
+
 ## Where a skill goes
 
 - Useful to anyone in the lab: one of the lab plugins.

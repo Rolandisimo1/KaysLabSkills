@@ -12,6 +12,10 @@ Ground claims in concrete numbers and give a sense of scale, including a plain c
 
 In Methods, be precise and reproducible: name the model, software, package and version, priors, and key parameters. In Results, narrate the figures and tables in order and report what was found without interpreting it. Save interpretation for the Discussion.
 
+**Never report a result in the Methods section.** This is a hard rule and it is violated easily, because a result often feels like it belongs there: it justifies a choice, or it explains why a step exists. It still does not go there. Methods state what was done and how; Results state what came out. Specific things that are results and not methods, all of which have appeared in drafts: a count or percentage computed from the data; a diagnostic outcome such as a retention rate, a convergence verdict, or a selection margin; the named cases a filter admitted or excluded; a statement that one quantity was affected and another was not; and any number with a credible interval. If a method choice needs justifying, state the rule in Methods and put the evidence for it in Results, then cross-reference. If the displaced number turns out not to be worth a line in Results, it was not worth a line in Methods either, so drop it.
+
+Do not pre-empt criticism a reviewer has not made. Raising a complicated weakness unprompted, and then defending against it, spends the reader's attention and invites doubt about something they may not have questioned. Report the descriptive quantity plainly in Results and leave the argument for the response to review if it is raised.
+
 Structure the Discussion as: restate the main findings, interpret the likely mechanism, compare with prior work, state limitations plainly and without over-apologizing, then turn to broader implications and future directions. Where it fits, close the paper by widening back out to conservation relevance or a forward-looking vision rather than trailing off on a minor point.
 
 Hedge with calibrated language ("suggest," "probably," "may," "our results are consistent with") but still commit to clear main conclusions. Do not bury the finding under qualifiers.
