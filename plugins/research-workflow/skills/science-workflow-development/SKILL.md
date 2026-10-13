@@ -1,6 +1,6 @@
 ---
 name: science-workflow-development
-description: "Lab rules for developing research analysis code, including saving and pushing it: when to commit, when and where to push to GitHub, what never to commit (data, credentials), keeping the project focused on its main deliverable with side-quests bounded, and keeping every figure, table, and result in committed pipeline code that regenerates it. Use when saving code, committing, pushing to GitHub, or putting code online; starting, resuming, or planning an analysis project; deciding what to work on next; writing analysis code in R or Python; producing figures or results that will be regenerated; dispatching cluster jobs; or when a session drifts into QC, debugging, or method comparisons."
+description: "Lab rules for developing research analysis code, including saving and pushing it: when to commit, when and where to push to GitHub, what never to commit (data, credentials), keeping the project focused on its main deliverable with side-quests bounded, and keeping every figure, table, and result in committed pipeline code that regenerates it. Use when saving code, committing, pushing to GitHub, or putting code online; starting, resuming, or planning an analysis project; deciding what to work on next; writing analysis code in R or Python; producing figures or results that will be regenerated; dispatching cluster jobs; or when a session drifts into QC, debugging, or method comparisons; or when editing, publishing, or adding a skill."
 ---
 
 # Science workflow development
@@ -123,6 +123,31 @@ these rules in the prompt; do not assume it knows them.
 - `.gitattributes` with `* text=auto` rewrites line endings. When a
   provenance baseline must be byte-exact, commit it with `--no-filters`, pin
   `* -text` for those files, and verify checksums against the source.
+
+### Skills live in the lab repo, not in one tool
+
+The lab's skills are shared through `KaysLabSkills`, and a skill is used from
+two other places: Claude Code's account skills, and the Claude Science skill
+store. **An edit made in either store and not mirrored to the repo is invisible
+to the rest of the lab and is silently reverted the next time anyone reinstalls
+the plugin.** Treat the repo as the canonical copy.
+
+So whenever you edit or publish a skill, make the same change in
+`plugins/<group>/skills/<skill-name>/` in the repo, in the same turn, and stage
+it. Do not leave it for later: the edit is cheap now and invisible in a week.
+
+From Claude Science, whose sandbox cannot see either store, the procedure is to
+read the published skill content back (`host.skills.read(name, path=...)`),
+write it to a workspace file, and copy that into the repo under the granted
+path. Diff before copying rather than overwriting blind, since the repo copy may
+carry someone else's edit.
+
+`scripts/skill-sync.sh` reports drift between the repo and both stores, and
+copies one named skill in either direction after showing the diff. It has to run
+natively, since the stores sit outside any sandbox. It is UNVALIDATED.
+
+The same applies to a skill written during project work: if it is useful beyond
+the project, it belongs in a lab plugin, not only in the account that made it.
 
 ## Related skills
 
