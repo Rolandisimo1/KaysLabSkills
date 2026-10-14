@@ -12,3 +12,4 @@ activity	Are coyotes more nocturnal at camera sites with higher human population
 geo	I have 300 museum specimen records with locality text like '5 mi NE of Boone, Watauga Co.' and need latitude, longitude and uncertainty for each.
 cv	We have 2 million new camera trap images to label. Help me set up MegaDetector and a Label Studio review queue.
 overlap	Compare daily activity overlap between coyotes and deer at our sites; coyotes have 40 detections and deer 400.
+issf	Fit an integrated step-selection function on these caribou GPS collars in amt: generate random steps, annotate NDVI, fit with clogit, and tell me whether the movement parameters need updating.
