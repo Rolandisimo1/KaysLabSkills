@@ -17,7 +17,7 @@ related skills; install only the groups you use.
 | `research-workflow` | science-workflow-development | everyone writing analysis code |
 | `camera-traps` | camera-trap-qc, camera-trap-activity-analysis, camtrap-interaction-analysis | lab |
 | `computer-vision` | wildlife-cv-pipeline | lab |
-| `movement` | gps-tracking-analysis, biologging-acc-imu | lab |
+| `movement` | gps-tracking-analysis, biologging-acc-imu, step-selection-functions | lab |
 | `modeling` | hierarchical-ecological-models | lab |
 | `data-and-compute` | mdd-taxonomy, earth-engine, geocode-locations, hazel-hpc | lab |
 | `kays-writing` | kays-writing-style, kays-analysis-report-standards | Roland, and anyone drafting text for him |

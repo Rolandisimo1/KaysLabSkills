@@ -181,9 +181,22 @@ change). These are public pages, reachable by a normal HTTPS GET (request
   - Memory, not just CPUs. A node can show free CPUs while nearly all its
     memory is allocated, so it cannot take the job.
 - **Every queued job reporting the SAME `squeue --start` estimate**, whatever
-  its wall limit, is a real signal worth chasing, though its cause is not
-  settled. Shortening wall limits did not release the long jobs; it only helped
-  short diagnostics backfill onto genuinely free nodes.
+  its wall limit, usually means they are all waiting on the same event rather
+  than on a backfill window each could fit. In the October 2026 case HPC staff
+  confirmed the cause: the idle cores and memory were on nodes being held for
+  **higher-priority parallel (multi-node) jobs**. Nothing was faulty. Single-core
+  jobs wait behind promised multi-node allocations because the scheduler will not
+  fragment a node it has committed. Shortening wall limits does not release such
+  jobs; it only helps short diagnostics backfill onto genuinely free nodes.
+- **`squeue --start` estimates are pessimistic and they move.** Staff noted that
+  parallel jobs often finish before their requested wall clock, so real starts
+  come earlier, while newly submitted work pushes them later. One ticket moved 22
+  of 25 jobs about four days earlier than first projected. Do not plan a deadline
+  on a projected start without saying it is a projection.
+- **Priority is visible in `squeue -o "%Q"` and explains split behaviour.** When
+  some jobs have a node assigned and others show `(null)` with a later date, the
+  ones with no node are in a lower priority band and are not yet matched to
+  hardware. Jobs in the same band generally start together.
 - Login banner: Hazel prints planned-maintenance/status messages at every
   interactive login — actually read it rather than skipping past, especially
   before filing a ticket.

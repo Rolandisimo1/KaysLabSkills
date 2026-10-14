@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# skill-sync.sh -- report or resolve drift between the lab skills repo and the
-# two places skills are actually used: Claude Code's account skills and the
-# Claude Science skill store.
+# skill-sync.sh -- report or resolve drift between this repo and the two places
+# skills are actually used: Claude Code's account skills, and the Claude Science
+# skill store.
 #
-# STATUS: UNVALIDATED. Written 2026-10-13 from inside a sandbox that cannot
-# reach either store, so the paths below are unverified and the script has
-# never been run. Check the paths it prints before trusting any copy.
+# STATUS: UNVALIDATED. Written 2026-10-13 from a sandbox that cannot reach
+# either store, so the paths below are unverified and the copy modes have never
+# been run. Use --check first and confirm the paths it prints.
 #
-# Why this exists: skill edits get made in whichever tool is in front of you,
-# and the repo is the thing the lab shares. An edit that lands in one store and
-# not the repo is invisible to everyone else and is silently reverted the next
-# time someone installs the plugin.
+# Why this exists: edits get made in whichever tool is in front of you. An edit
+# that lands in one store and not the repo is invisible to the lab and is
+# reverted at the next plugin install. Mirror the edit AND commit it on a branch.
 #
 #   ./scripts/skill-sync.sh              # report drift, change nothing
-#   ./scripts/skill-sync.sh --pull NAME  # store -> repo, for one skill
-#   ./scripts/skill-sync.sh --push NAME  # repo -> store, for one skill
+#   ./scripts/skill-sync.sh --pull NAME  # store -> repo, one skill
+#   ./scripts/skill-sync.sh --push NAME  # repo -> store, one skill
 #
 # There is deliberately no bulk copy mode. Copying every skill in one direction
 # is how you lose an edit someone else made in the other.
@@ -29,27 +28,26 @@ repo_path() { find "$REPO/plugins" -mindepth 3 -maxdepth 3 -type d \
 
 compare() {  # name store_dir label
   local name="$1" store="$2" label="$3" rp
-  rp=$(repo_path "$name")
-  [ -z "$rp" ] && return 0
+  rp=$(repo_path "$name"); [ -z "$rp" ] && return 0
   if [ ! -d "$store/$name" ]; then
-    printf '  %-34s %-14s absent\n' "$name" "$label"; return 0
+    printf '  %-34s %-12s absent\n' "$name" "$label"; return 0
   fi
   if diff -rq "$rp" "$store/$name" >/dev/null 2>&1; then
-    printf '  %-34s %-14s in sync\n' "$name" "$label"
+    printf '  %-34s %-12s in sync\n' "$name" "$label"
   else
-    printf '  %-34s %-14s DRIFT\n' "$name" "$label"
+    printf '  %-34s %-12s DRIFT\n' "$name" "$label"
     diff -rq "$rp" "$store/$name" 2>/dev/null | sed 's/^/      /'
   fi
 }
 
 case "${1:-}" in
   --pull|--push)
-    [ $# -eq 2 ] && [ -n "$2" ] || { echo "need a skill name" >&2; exit 2; }
+    [ $# -eq 2 ] || { echo "need a skill name" >&2; exit 2; }
     name="$2"; rp=$(repo_path "$name")
     [ -n "$rp" ] || { echo "no such skill in repo: $name" >&2; exit 2; }
-    echo "Which store? 1) Claude Code  $CODE_STORE/$name"
-    echo "             2) Science      ${SCI_STORE:-<not found>}/$name"
-    read -r -p "1 or 2: " which
+    echo "1) Claude Code  $CODE_STORE/$name"
+    echo "2) Science      ${SCI_STORE:-<not found>}/$name"
+    read -r -p "which store? 1 or 2: " which
     case "$which" in
       1) store="$CODE_STORE/$name" ;;
       2) store="${SCI_STORE:?Science store not found}/$name" ;;
@@ -61,7 +59,7 @@ case "${1:-}" in
     read -r -p "apply? (yes/N) " ok
     [ "$ok" = "yes" ] || { echo "aborted"; exit 0; }
     mkdir -p "$dst"; rsync -a --delete "$src"/ "$dst"/
-    echo "done. Review with git diff before committing."
+    echo "done. git diff, then commit on a new branch and open a pull request."
     ;;
   ""|--check)
     echo "repo:    $REPO/plugins"
@@ -74,5 +72,5 @@ case "${1:-}" in
       [ -n "$SCI_STORE" ] && compare "$n" "$SCI_STORE" "science"
     done
     ;;
-  *) sed -n '2,24p' "${BASH_SOURCE[0]}"; exit 2 ;;
+  *) sed -n '2,20p' "${BASH_SOURCE[0]}"; exit 2 ;;
 esac
