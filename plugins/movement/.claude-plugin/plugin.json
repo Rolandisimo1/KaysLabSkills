@@ -1,6 +1,6 @@
 {
   "name": "movement",
-  "description": "GPS/Argos telemetry and accelerometer (biologging) analysis",
+  "description": "GPS/Argos telemetry, step-selection functions, and accelerometer (biologging) analysis",
   "author": {
     "name": "Kays Lab"
   }

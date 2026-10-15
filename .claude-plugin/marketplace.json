@@ -23,7 +23,7 @@
     {
       "name": "movement",
       "source": "./plugins/movement",
-      "description": "GPS/Argos telemetry and accelerometer (biologging) analysis"
+      "description": "GPS/Argos telemetry, step-selection functions, and accelerometer (biologging) analysis"
     },
     {
       "name": "modeling",

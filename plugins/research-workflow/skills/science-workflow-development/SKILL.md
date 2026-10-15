@@ -133,8 +133,14 @@ to the rest of the lab and is silently reverted the next time anyone reinstalls
 the plugin.** Treat the repo as the canonical copy.
 
 So whenever you edit or publish a skill, make the same change in
-`plugins/<group>/skills/<skill-name>/` in the repo, in the same turn, and stage
-it. Do not leave it for later: the edit is cheap now and invisible in a week.
+`plugins/<group>/skills/<skill-name>/` in the repo, in the same turn. Do not
+leave it for later: the edit is cheap now and invisible in a week.
+
+**Staging is not enough: commit on a new branch, push, and open a pull
+request.** Do not commit skill edits straight to a local `main`, and do not
+reuse a branch whose pull request is already merged. Before concluding that an
+edit was lost, check `origin/main` on GitHub: a local `main` that has not been
+pulled will look as if recent edits are missing.
 
 From Claude Science, whose sandbox cannot see either store, the procedure is to
 read the published skill content back (`host.skills.read(name, path=...)`),

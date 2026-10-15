@@ -46,8 +46,10 @@ mirrored here is invisible to the rest of the lab, and is reverted the next time
 someone reinstalls the plugin. The repo is the canonical copy.
 
 Mirror the edit into `plugins/<group>/skills/<skill-name>/` in the same working
-session that made it, and diff rather than overwrite, since the repo copy may
-carry someone else's change.
+session that made it, diff rather than overwrite since the repo copy may carry
+someone else's change, and **commit it on a new branch rather than leaving it
+staged.** Then push, open a pull request, and merge. Edits that sit on a branch
+that was already merged, or on an unpushed local `main`, never reach the lab.
 
 `scripts/skill-sync.sh` reports drift between this repo and both stores, and
 copies a single named skill in either direction after showing the diff. It must
