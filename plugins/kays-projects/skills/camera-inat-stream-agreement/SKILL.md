@@ -48,6 +48,67 @@ name which, in the figure, not only in the caption.
 Camera data is the gold standard; iNaturalist extends coverage but its survey
 effort is unmeasured, so it corroborates rather than carries the result.
 
+### 2a. theta1 is the PRIMARY agreement metric. Report it for every species.
+
+`theta1` is the exponent linking the two streams' intensities in
+`calcIntensity_SVC`:
+
+    log(mu) = theta0 + theta1 * log(sum(lambda))
+
+It is the model's own statement about whether the streams correspond, and it is
+the metric Goldstein et al. use for exactly this purpose, so a reviewer already
+knows how to read it. **Quote theta1 with its 95% interval before any other
+agreement diagnostic.** Interpretation:
+
+- **CI entirely below 1** -> sub-linear. iNaturalist under-responds to real
+  abundance differences, which is the normal state for this fleet. The joint
+  camera-anchored trend is safe to report.
+- **CI includes 1** -> proportional. The streams move together, but this is
+  ALSO the danger zone: see the gate below.
+- **CI above 1** -> super-linear. iNaturalist over-responds. Treat the joint
+  trend as unreportable until a camera-only fit confirms it.
+
+**The gate, measured on this fleet (v2u, 2026-10-17):** among the 13 species
+that resolved a camera direction and had a camera-only control, every species
+whose theta1 interval reached 1 failed the camera-only check (2 of 2), and only
+one of eleven that stayed below 1 failed. So **theta1_hi >= 1 means do not
+report the joint trend without a camera-only fit in hand.**
+
+Why this is primary rather than the interval-width and deployment-count
+correlates: it has a mechanism rather than a correlation, and it is available
+from the joint fit ALONE, so it screens a species before any control fit is
+built. As a predictor of displacement MAGNITUDE it is weaker than those
+correlates (Spearman +0.28, p=0.17, against +0.60 for joint CI width) -- it is a
+gate, not a dose-response.
+
+Fleet values as of 2026-10-17 (25 fitted species): median 0.556, range 0.304
+(northern raccoon) to 2.241 (California ground squirrel). Twenty are sub-linear,
+four include 1 (badger, porcupine, puma, western gray squirrel), one is
+super-linear (California ground squirrel). **Do not write that theta1 is
+sub-linear for every species** -- that was true of the superseded v2b fits and
+is false on the current ones.
+
+### 2b. Then the camera-only control, which tests whether it mattered
+
+theta1 says whether the streams correspond; the camera-only fit says whether
+non-correspondence actually moved THIS species' trend. Refit with the iNat
+likelihood removed and compare:
+
+- **Camera-only resolves the same direction** -> the joint estimate is anchored;
+  report it, since it is the more precise of the two.
+- **Camera-only spans zero or flips sign** -> do not report the joint trend as a
+  population trend. Report camera-only, or report the species as unresolved.
+
+What integration is worth on this fleet, measured over the 26 species with both
+fits: adding iNaturalist narrows the camera trend interval by 14% (median 7.8 ->
+6.7 pp/yr) and resolves no additional species (14 either way; three gain a
+direction, three lose one). Where both resolve, all 11 agree in sign, median
+difference 0.97 pp/yr. So for the TREND specifically the second stream adds
+modest precision, not a qualitative change; its value is in the spatial and
+climate surfaces, the covariate effects, and the longer temporal window.
+
+### 2c. Per-stream reporting
+
 - **Streams agree** -> report the camera-anchored trend; the iNaturalist
   stream is not under suspicion.
 - **Streams oppose in direction** -> report the camera trend and flag the
