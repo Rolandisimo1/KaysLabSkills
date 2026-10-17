@@ -58,15 +58,30 @@ effort is unmeasured, so it corroborates rather than carries the result.
 It is the model's own statement about whether the streams correspond, and it is
 the metric Goldstein et al. use for exactly this purpose, so a reviewer already
 knows how to read it. **Quote theta1 with its 95% interval before any other
-agreement diagnostic.** Interpretation:
+agreement diagnostic.**
 
-- **CI entirely below 1** -> sub-linear. iNaturalist under-responds to real
-  abundance differences, which is the normal state for this fleet. The joint
-  camera-anchored trend is safe to report.
-- **CI includes 1** -> proportional. The streams move together, but this is
-  ALSO the danger zone: see the gate below.
-- **CI above 1** -> super-linear. iNaturalist over-responds. Treat the joint
-  trend as unreportable until a camera-only fit confirms it.
+theta1 is an exponent, so read it as a multiplier: a cell with twice the
+camera-side abundance yields `2^theta1` times the iNaturalist records. **There
+are TWO thresholds, not one, and the healthy state is strictly between them.**
+
+- **theta1 = 0 is the no-agreement value.** The iNat expected count becomes
+  constant across cells, so records carry NO spatial information about
+  abundance. **An interval that includes 0 means the stream cannot be shown to
+  track the camera surface at all** -- its contribution to the shared surface
+  is then whatever its own sampling pattern is. Negative is worse than useless:
+  records higher where animals are fewer.
+- **CI strictly inside 0 to 1** -> partial correspondence. iNaturalist
+  under-responds to real abundance differences, which is the normal and healthy
+  state for this fleet. The joint camera-anchored trend is safe to report.
+- **CI reaches or exceeds 1** -> proportional or over-responding. No observer
+  behaviour plausibly produces over-response, so this is the signature of the
+  iNat pattern tracking something other than abundance (observer density, road
+  access, a few heavily visited sites) with theta1 absorbing the distortion.
+  Treat the joint trend as unreportable until a camera-only fit confirms it.
+
+**Judge on the interval, never the mean.** American badger's mean of 0.33 sits
+squarely in the healthy band while its interval (-0.14, 1.22) spans BOTH
+thresholds, so it is uninformative rather than healthy.
 
 **The gate, measured on this fleet (v2u, 2026-10-17):** among the 13 species
 that resolved a camera direction and had a camera-only control, every species
