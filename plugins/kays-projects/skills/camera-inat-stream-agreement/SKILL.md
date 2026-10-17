@@ -83,6 +83,58 @@ are TWO thresholds, not one, and the healthy state is strictly between them.**
 squarely in the healthy band while its interval (-0.14, 1.22) spans BOTH
 thresholds, so it is uninformative rather than healthy.
 
+## theta_space and theta_time
+
+theta1 as the model fits it is a single scalar pooled over every year
+(`theta0 = double(0)`, `theta1 = double(0)` in the model code). Call that
+**theta_space**: across the country, do records track abundance? The same
+quantity estimated separately within each year is **theta_time**: is that
+relationship the same now as it was six years ago?
+
+theta_time is measurable outside the model -- per year, regress each cell's
+effort-corrected iNaturalist rate on a camera-derived relative abundance held
+fixed across years, in logs; the slope is that year's coupling. **These
+estimates are NOT on theta_space's scale** (the pooled version of that
+estimator ran 0.16-0.83 across species where the fitted models give 0.42-0.56).
+Read the slope over time, never the level, and do not quote them as theta
+values.
+
+**Standing decision: report theta_time as a diagnostic, do NOT correct the
+trend for it.** Measured over 2019-2025 on 23 of 34 species, 7 have drift
+intervals excluding zero -- 4 strengthening, 3 weakening. The camera-only
+control is the direct test of whether that contaminates the reported
+camera-anchored trend, and it comes back clean: median displacement between
+joint and camera-only estimates is 1.58 pp/yr for the drift species against
+2.65 pp/yr for the rest, with |drift| against |displacement| at rho = -0.12
+(p = 0.60). The iNaturalist-only trend increment is absorbing the drift, which
+is the escape-valve structure working as designed. Adding a drift parameter
+would mean refitting the fleet plus a simulation study, against a measured
+benefit near zero for the headline result.
+
+Three places it still matters:
+
+- **Anything reporting the iNaturalist-side quantity** -- the intensity
+  surfaces and period-change maps -- is driven by the iNaturalist side and is
+  NOT protected by the escape valve. A drifting coupling distorts the relative
+  heights of those time slices. Carry it as a caveat there.
+- **A species whose theta_time crosses zero** has records that no longer point
+  at the animals. American badger runs +0.52 (2019) to -0.15 (2025), which also
+  explains why its pooled theta_space interval is uninformative: a scalar
+  fitted to a quantity that changed sign underneath it.
+- **Extrapolation beyond 2019-2025** is not licensed. Camera coverage before
+  2019 is too sparse to build a reference from.
+
+What drives it: cell-level record growth aligned with camera-measured abundance
+predicts the drift across species (rho = +0.65, p = 0.0008); alignment with
+human population does not (rho = +0.15, p = 0.51), being near-universal and so
+unable to explain species-level differences. Note the metric cannot separate
+observers finding the species better from the species genuinely increasing
+where cameras already detect it.
+
+Revisit this decision if a species with large camera-only displacement also
+turns out to have large drift. The steep-decline western species are a blind
+spot on both diagnostics -- too few camera-monitored cells for either.
+
 **The gate, measured on this fleet (v2u, 2026-10-17):** among the 13 species
 that resolved a camera direction and had a camera-only control, every species
 whose theta1 interval reached 1 failed the camera-only check (2 of 2), and only
