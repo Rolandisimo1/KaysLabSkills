@@ -120,6 +120,35 @@ R must not be mixed with `module load R`; MPI packages must build against
 system MPI). Before giving any conda, R-package, or pip instructions, read
 `references/environments.md`.
 
+## Submit caps: `normal` is the partition QOS, so it counts EVERYTHING
+
+Hazel caps a user at 1000 submitted jobs, and the accounting is asymmetric
+because partition `compute` carries QOS `normal` as its PARTITION QOS
+(`OverPartQOS` is set on `long`):
+
+- A **`normal`** submission is checked against **all of your compute jobs**,
+  `long` included.
+- A **`long`** submission is checked against **`long`'s own count only**.
+
+So with 591 long + 514 normal jobs queued (1,105 total), every further `normal`
+submission is refused with `QOSMaxSubmitJobPerUserLimit` while `long` still has
+room. Observed 2026-10-19 on the windowed refit launch.
+
+Consequences worth knowing before a large staged launch:
+
+- **Count the cap as `len(squeue -r)` for `normal`, and as the `long` rows only
+  for `long`.** A per-QOS tally from `squeue -o %q` undercounts `normal` and the
+  feeder will keep hitting a refusal it cannot predict.
+- **Submit the feeder/driver job itself under `long`.** A self-requeuing driver
+  submitted under `normal` cannot re-queue once the total reaches 1000, so the
+  staged launch dies silently at the exact moment it is most needed. This
+  happened: the first feeder pass submitted what it could and its own re-queue
+  was refused, leaving nothing scheduled.
+- **A refusal can leave a run dir part-submitted** (one fit got 9 of 12 chains).
+  Record submitted chains rather than whole run dirs, and top up the missing
+  ones on a later pass, or that fit silently runs short.
+- Array tasks each count against the cap.
+
 ## Monitoring and troubleshooting
 
 `squeue -u $USER` (status), `scancel JOBID`, `sacct -j JOBID` (accounting,
