@@ -9,9 +9,7 @@
 #
 # Why this exists: edits get made in whichever tool is in front of you. An edit
 # that lands in one store and not the repo is invisible to the lab and is
-# reverted at the next plugin install. On 2026-10-13 four skill edits staged but
-# not committed here were discarded by an unrelated merge, which is the same
-# failure from the other direction: mirror the edit AND commit it.
+# reverted at the next plugin install. Mirror the edit AND commit it on a branch.
 #
 #   ./scripts/skill-sync.sh              # report drift, change nothing
 #   ./scripts/skill-sync.sh --pull NAME  # store -> repo, one skill
@@ -61,7 +59,7 @@ case "${1:-}" in
     read -r -p "apply? (yes/N) " ok
     [ "$ok" = "yes" ] || { echo "aborted"; exit 0; }
     mkdir -p "$dst"; rsync -a --delete "$src"/ "$dst"/
-    echo "done. git diff, then COMMIT -- a staged-only change can be lost to a merge."
+    echo "done. git diff, then commit on a new branch and open a pull request."
     ;;
   ""|--check)
     echo "repo:    $REPO/plugins"
@@ -74,5 +72,5 @@ case "${1:-}" in
       [ -n "$SCI_STORE" ] && compare "$n" "$SCI_STORE" "science"
     done
     ;;
-  *) sed -n '2,22p' "${BASH_SOURCE[0]}"; exit 2 ;;
+  *) sed -n '2,20p' "${BASH_SOURCE[0]}"; exit 2 ;;
 esac

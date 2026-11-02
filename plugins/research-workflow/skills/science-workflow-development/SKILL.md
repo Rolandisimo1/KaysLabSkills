@@ -136,13 +136,11 @@ So whenever you edit or publish a skill, make the same change in
 `plugins/<group>/skills/<skill-name>/` in the repo, in the same turn. Do not
 leave it for later: the edit is cheap now and invisible in a week.
 
-**Staging is not enough — it must be committed.** On 2026-10-13 four skill edits
-were written into the repo and staged but not committed; an unrelated pull
-request merged in the meantime and discarded all four silently, including the
-sync script itself. They were recoverable only because the Claude Science copies
-still held them. After any mirror, verify the rules are still in the working tree
-(`grep` for a distinctive phrase against both the file and `git show HEAD:<path>`)
-before assuming the job is done, and re-verify after any pull.
+**Staging is not enough: commit on a new branch, push, and open a pull
+request.** Do not commit skill edits straight to a local `main`, and do not
+reuse a branch whose pull request is already merged. Before concluding that an
+edit was lost, check `origin/main` on GitHub: a local `main` that has not been
+pulled will look as if recent edits are missing.
 
 From Claude Science, whose sandbox cannot see either store, the procedure is to
 read the published skill content back (`host.skills.read(name, path=...)`),

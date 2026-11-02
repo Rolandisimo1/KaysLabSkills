@@ -12,3 +12,4 @@ activity	camera-traps:camera-trap-activity-analysis
 geo	data-and-compute:geocode-locations
 cv	computer-vision:wildlife-cv-pipeline
 overlap	camera-traps:camera-trap-activity-analysis
+issf	movement:step-selection-functions
