@@ -66,12 +66,47 @@ account trouble if violated, so bake them into every script and instruction:
 | Path | Quota | Purpose | Notes |
 |---|---|---|---|
 | `/home/$USER` | 15 GB, 10K files | scripts, small code | backed up daily |
-| `/share/$GROUP/$USER` | 20 TB, 1M files (per project) | job data, working space | NOT backed up, 30-day purge |
+| `/share/$GROUP/$USER` | 20 TB, 1M files (per project) | job data, working space, large job I/O | NOT backed up, 30-day purge |
 | `/usr/local/usrapps/$GROUP` | 100 GB, 250K files | user-installed software, conda envs | backed up; read-only from compute nodes; must be requested from HPC staff |
+| `/rsstu/users/<l>/<unityID>/<share>` | 2 TB base (free up to 30 TB on request) | curated/final research data, long-term | OIT Research Storage; backed up daily to tape; snapshots (≤7 days) COUNT against the quota |
 | `/gpfs_archive` | 1 TB | instructional mass storage | login nodes only, tape-backed; store as tar archives |
 
 Check quotas with `quota_display`. Find `$GROUP` with `groups` (first group
 listed).
+
+## Where large job output goes: /share scratch, NOT Research Storage (/rsstu)
+
+`/rsstu` is OIT **Research Storage** — a separate service from the HPC scratch and
+home volumes, mounted on Hazel. Each faculty member gets a 2 TB individual share and
+each active project a 2 TB project share, free, backed up daily to a tape library.
+It is for **curated, finished research data**, not for running jobs.
+
+**The rule: run jobs on `/share/$GROUP` scratch (20 TB), and copy only final,
+curated products to `/rsstu`.** NCSU's own documented workflow is copy-in / copy-out:
+stage inputs to scratch at the start of a job, write all output to scratch, copy the
+small final results to Research Storage at the end. Large transient output — MCMC
+chains, intermediate rasters, per-iteration dumps — belongs on scratch. Conda
+environments belong in `/usr/local/usrapps/$GROUP`, not on `/rsstu`.
+
+**Why this matters, and the trap (observed Nov 2026):** a windowed iSDM fleet wrote
+~1.2 TB of chain files (and its conda R environment) directly onto the 2 TB NSFiSDMs
+project share. The share hit 100% full, which blocked *every* group member's jobs —
+R would not even start ("No space left on device" reading its own libraries). Then
+deleting files **did not free space**, because Research Storage snapshots consume the
+share's quota (per OIT's storage SLA) and hold deleted blocks for up to ~7 days. So:
+
+- Deletion is not an emergency fix on `/rsstu`. Space returns only as snapshots age
+  out (≤7 days), or when OIT expires them.
+- Users (including the share owner) can delete files and manage access via the OIT
+  Research Services portal, but **cannot clear snapshots or raise the quota
+  themselves** — both go through `help@ncsu.edu`. A project-share increase up to 30 TB
+  is free and routine; use it for emergency headroom.
+- The durable fix is architectural: keep job execution and bulk output on `/share`,
+  keep `/rsstu` for small curated results. A full research share is usually a sign
+  that scratch should have been used.
+
+Escalation still follows the email rule below: draft the help-desk ticket for the
+share owner (the faculty PI) to send; Claude/Claude Code never send it.
 
 ## Batch script skeleton (Slurm)
 
