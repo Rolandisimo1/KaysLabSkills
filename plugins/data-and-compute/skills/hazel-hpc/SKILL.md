@@ -155,35 +155,6 @@ R must not be mixed with `module load R`; MPI packages must build against
 system MPI). Before giving any conda, R-package, or pip instructions, read
 `references/environments.md`.
 
-## Submit caps: `normal` is the partition QOS, so it counts EVERYTHING
-
-Hazel caps a user at 1000 submitted jobs, and the accounting is asymmetric
-because partition `compute` carries QOS `normal` as its PARTITION QOS
-(`OverPartQOS` is set on `long`):
-
-- A **`normal`** submission is checked against **all of your compute jobs**,
-  `long` included.
-- A **`long`** submission is checked against **`long`'s own count only**.
-
-So with 591 long + 514 normal jobs queued (1,105 total), every further `normal`
-submission is refused with `QOSMaxSubmitJobPerUserLimit` while `long` still has
-room. Observed 2026-10-19 on the windowed refit launch.
-
-Consequences worth knowing before a large staged launch:
-
-- **Count the cap as `len(squeue -r)` for `normal`, and as the `long` rows only
-  for `long`.** A per-QOS tally from `squeue -o %q` undercounts `normal` and the
-  feeder will keep hitting a refusal it cannot predict.
-- **Submit the feeder/driver job itself under `long`.** A self-requeuing driver
-  submitted under `normal` cannot re-queue once the total reaches 1000, so the
-  staged launch dies silently at the exact moment it is most needed. This
-  happened: the first feeder pass submitted what it could and its own re-queue
-  was refused, leaving nothing scheduled.
-- **A refusal can leave a run dir part-submitted** (one fit got 9 of 12 chains).
-  Record submitted chains rather than whole run dirs, and top up the missing
-  ones on a later pass, or that fit silently runs short.
-- Array tasks each count against the cap.
-
 ## Monitoring and troubleshooting
 
 `squeue -u $USER` (status), `scancel JOBID`, `sacct -j JOBID` (accounting,
@@ -335,6 +306,30 @@ send only the first paragraph.
 If you are unsure whether something clears the bar, say plainly which single
 item does and label the rest as skippable, rather than sending it all and
 letting him sort it.
+
+**A prompt carries the decision and nothing else.** Passing the bar lets a
+message exist; it does not license padding it. Once the blocking item is
+written, stop. Specifically, never add:
+
+- **A paragraph saying some other item is fine.** "Fisher needs nothing",
+  "the wall limits look right", "that check passed" -- if it needs nothing,
+  it needs no sentence either. The other agent already knows; it told you.
+- **Agreement with a recommendation you are accepting.** Give the ruling.
+  "Use the old fit" is the whole message; why it is right belongs in the
+  ruling only where the reasoning changes what gets done.
+- **A closing observation.** Trends across finished species, what the table
+  might look like later, what to watch for -- if it needs no action now, it
+  is not in the prompt. Raise it when it becomes actionable, with the
+  evidence that made it so.
+
+**Repeating an unanswered item: only if it blocks or risks damage.** A real
+hazard left unaddressed (filling a shared filesystem, a job about to be lost)
+is worth saying twice. An efficiency preference is not -- say it once and let
+it go. If the other agent has not acted on it after one clear statement, it
+either disagreed or deprioritised it, and a second copy changes neither.
+
+**The test before sending: delete every sentence that does not change what
+the other agent will do.** If nothing survives, send nothing.
 
 ## When driving Hazel over SSH for the user
 
