@@ -16,6 +16,72 @@ Failure modes found the hard way on a 26,798-deployment / 60-project continental
 dataset. Every one was silent: the analysis ran, produced plausible numbers, and
 was wrong. Run these checks BEFORE modelling, not after a reviewer asks.
 
+## Wildlife Insights science-view exports: establish the shape before the content
+
+A "science view" export arrives as two CSVs, an image-level file and a
+sequence-level file, and they hold **disjoint project sets** — a WI project is
+configured as either an image project or a sequence project. Reference export:
+118,583,080 image rows across 3,808 projects, 10,013,698 sequence rows across
+1,298 projects, with zero projects and zero deployments in common. Carry a
+`source_file` column from the first line of code; never assume a project id or
+deployment id is unique across the pair without checking.
+
+**No deployment table ships with the export, and one reconstructs exactly.**
+Deployment attributes — coordinates, sensor window, first/last image time — are
+denormalised onto every detection row. Group by `deployment_id`, take the
+distinct values, and then ASSERT the reconstruction:
+
+```sql
+SELECT count(*) FROM (SELECT deployment_id FROM rows GROUP BY deployment_id
+  HAVING count(DISTINCT latitude)>1 OR count(DISTINCT sensor_start)>1
+      OR count(DISTINCT project_id)>1)
+```
+
+This returned 0 of 330,769 deployments on the reference export, which is what
+licenses treating the result as the deployment table rather than a guess. A
+non-zero count means the export is internally inconsistent and the
+reconstruction is unsafe — stop and report it.
+
+**Row grain differs between the two files, and neither is one row per event.**
+An image row is one taxon in one photo; a sequence row is one taxon in one
+sequence. The "one sequence is not one row" rule below has an image-file
+analogue: rows sharing `(deployment_id, timestamp)` are the same photo split by
+age/sex class. To put the files on a common footing, collapse image rows with
+the 60 s Wildlife Insights sequence interval, chained within a deployment.
+Domestic dog in the reference export: 828,560 image rows → 657,410 distinct
+timestamped photos → **189,534 independent events**: 4.4x fewer than raw rows, 3.5x fewer than photos. Applying
+the same 60 s rule across sequence start times changed the sequence file by only
+0.4% (154,517 → 153,838), confirming WI sequences are already built on that
+interval and that the collapsed image counts are comparable.
+
+**Datetime columns can hold the literal string `None`.** 2,061,003 image rows
+(1.7%) and 37,662 sequence rows. `TRY_CAST` and COUNT the resulting nulls; a
+parse failure here is data, not a loading bug, and those rows can never enter an
+event count or an effort window.
+
+**`country_code` is absent from `project_metadata` for 38% of deployments**
+(80,975 image, 45,225 sequence) — genuinely missing from the JSON, not a parsing
+failure. Derive country from coordinates instead.
+
+**No embargo, licence, or fuzzing field exists anywhere in the export**, so
+whether a record may be reshared cannot be answered from the files. Ask the
+provider for the project embargo setting and the per-deployment upload date; the
+embargo clock starts at upload, not at collection, so sensor dates cannot stand
+in for it. Whether coordinates were fuzzed IS testable: WI fuzzes sensitive
+locations by truncating to 0.1 decimal degree (~11 km), so fuzzed deployments
+must sit exactly on a 0.1° grid. Test the grid AND test whether that group is
+enriched for IUCN VU/EN/CR species. Reference export: 654 of the 330,759 deployments
+carrying coordinates (0.198%; 10 of the 330,769 total have none) sat on the grid and were NOT enriched (17.0% carried a VU/EN/CR species
+versus 17.7% of the rest), i.e. coarse coordinate entry rather than fuzzing —
+the export held full-precision coordinates for 58,561 sensitive-species
+deployments. Check this before resharing anything deployment-level.
+
+**Scale.** The image file is 126.6 GB of CSV. Convert both to column-pruned
+Parquet with DuckDB before any QC (`all_varchar=true` on read, then `TRY_CAST`
+per column): 49 s and 1.03 GB out for 118.6 M rows, because dropping the
+repeated `project_metadata` JSON blob is most of the file. Every check below
+then runs in under a second. pandas is not an option at this size.
+
 ## Species names: resolve them before anything else
 
 Load **`mdd-taxonomy`** and use it. Multi-project camera-trap exports carry
@@ -45,6 +111,29 @@ is rarely confused. Gray squirrel is safe on this front by day but flying
 squirrels are the nocturnal confusion risk, which is why the two-sentinel test
 (both species inverted together) is what distinguishes a clock error from a
 misidentification rather than either species alone.
+
+**Domestic forms break trinomial reduction — resolve in the right order.**
+Accepted name on the full string, then the synonym table on the full string, and
+only then reduce a trinomial to its binomial. Wildlife Insights labels dingo
+`Canis lupus dingo`; MDD v2.5 lists that exact combination as a synonym of
+*Canis familiaris*, so a synonym-first lookup resolves it correctly while a
+trinomial-first rule files 109,250 dingo records under *Canis lupus* (Gray
+Wolf). WI uses `Canis familiaris`, not `Canis lupus familiaris`, so a *C. lupus*
+query does not pull dogs — the hazard here is the dingo name, not the dog name.
+Decide explicitly whether dingo belongs in a domestic-dog analysis; MDD says it
+is the same species, and WI labels it `wild-animal` while dog is
+`domestic-animal`. `Dog-on-leash` is a second WI common name under the same
+binomial (13,301 rows): an attribute of the detection, not a taxon.
+
+**The MDD synonym table stores original combinations with the subgenus in
+parentheses** — `Macropus (Petrogale) robustus`, `Macropus (Halmaturus) parma`.
+Strip parentheticals before matching or every genus change silently fails to
+resolve. With that fix, 99.95% of 92.6 M mammal rows in the reference export
+resolved to MDD v2.5: 1,406 names matched an accepted name exactly and 139
+resolved through synonyms, covering 1.8 M rows whose current name differs from
+the string in the file (*Mazama nemorivaga* → *Passalites nemorivagus*,
+*Macropus robustus* → *Osphranter robustus*, *Cephalophus* → *Cephalophorus*),
+leaving 6 unresolved names and 3 ambiguous splits.
 
 Also watch for captive records when using occurrence data as a range or richness
 layer — zoo observations of large carnivores are common in aggregated
@@ -241,6 +330,30 @@ not observe DST. Hand-coded boundaries failed on Nashville, El Paso and Phoenix.
 The corrected `solar_window(timestamps, latitude, longitude)` validates to within
 14 min of published sunrise/sunset across 9 sites in 4 zones.
 
+**A sentinel set that works outside North America.** The four sentinels above
+are North American; a global export needs groups that occur everywhere. Use
+**diurnal = genus *Sciurus* plus class Aves excluding Strigiformes (owls) and
+Caprimulgiformes (nightjars)**, mirrored by **nocturnal = Strigiformes plus
+*Didelphis*, *Procyon lotor*, *Genetta* and *Rattus***. On the reference export
+these landed at 8.4% and 92.4% of detections at night respectively (project
+medians 4.2% and 96.8%) — compute that pair of numbers first, because it
+validates the sentinel set on YOUR data before any project is flagged by it.
+Humans (`taxonomy_subtype='human'`) are a usable third diurnal sentinel, median
+2.5–4.3% night, worth adding where neither group reaches the minimum count.
+
+**The nocturnal mirror is what separates a broken clock from an unusual site.**
+A clock error inverts both groups at once; a genuinely odd site moves one. On
+the reference export 75 projects crossed the 20% diurnal-night threshold with
+the UTC signature, and 6 showed both groups inverted together (diurnal >50%
+night AND nocturnal <50% night) — a combination no animal community produces.
+
+**Coverage is limited by project SIZE, not by sentinel choice.** A diurnal
+sentinel reached 2,752 of 5,106 projects at a 60-detection minimum; any
+sentinel including humans reached 3,177 (62.2%). The 1,929 projects with no
+sentinel hold 1.2% of all rows, median 37 rows each — 1,505 of them have under
+200 rows in total. Adding more sentinel taxa does not fix that. Report those
+projects as **unscreened**, never as passing.
+
 **Project level: a real hypothesis, and safe to act on.**
 ```
 diurnal-sentinel night fraction > 0.20  AND  adding the site's true UTC offset
@@ -392,6 +505,35 @@ altered hunting access, a burn — pooling averages away real variation. Before
 pooling, check whether the same site's estimates differ more across years than
 across cameras within a year; if they do, year is a real effect at that site and
 should be modelled rather than absorbed.
+
+### 3b. A deployment longer than the survey: clip, split, or keep
+
+A stated window of years is usually a metadata defect rather than a long survey,
+and the three cases need opposite fixes. Plot detections per day against the
+stated window for every deployment over two years; the picture decides it.
+
+Reference export: 3,073 deployments had windows longer than two years, but about
+2,000 of those had `sensor_end` beyond the export date (as far out as the year
+9094) and no splitting can repair them. Of the 1,089 with plausible windows:
+
+- **752 (69%) — clip the window.** Median stated window 1,096 days against a
+  median detection span of 39 days. The end date is wrong; the deployment is
+  short. Clip to the detection span, do not split.
+- **282 — split.** Detections cover most of the window but contain real
+  silences. These became 1,639 segments, 2 to 12 per deployment.
+- **45 — keep.** Genuinely continuous across a long window.
+- **10 — no usable detections.**
+
+**Split rule: a silence of at least 30 days AND at least 10x that camera's own
+median inter-detection interval.** The second clause is load-bearing. Median
+inter-detection interval on these deployments was 1.5-2 days, so a flat 30-day
+rule is right for an active camera but shreds a sparse one that legitimately
+fires every 10 days. Both thresholds belong in the output table so the split can
+be re-cut without re-deriving it.
+
+Separate the cases with two ratios per deployment: **window coverage**
+(detection span / stated window; below 0.5 means clip) and the segment count
+from the split rule (above 1 means split).
 
 ### 4. Sun-anchored time breaks the effort offset
 Sun-time transformation (Vazquez et al. 2019 MEE) rescales each day so sunrise

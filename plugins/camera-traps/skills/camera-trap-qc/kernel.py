@@ -5,6 +5,42 @@ import pandas as pd
 DIURNAL_SENTINEL = "Eastern Gray Squirrel"
 NOCTURNAL_SENTINEL = "Northern Raccoon"
 
+# Sentinel groups that work outside North America. Validated on a 128.6M-row
+# global Wildlife Insights export: 8.4% of diurnal-group detections and 92.4%
+# of nocturnal-group detections fell at night (project medians 4.2% / 96.8%).
+GLOBAL_DIURNAL = {"genus": ["Sciurus"], "class": ["Aves"],
+                  "exclude_order": ["Strigiformes", "Caprimulgiformes"]}
+GLOBAL_NOCTURNAL = {"genus": ["Didelphis", "Genetta", "Rattus"],
+                    "order": ["Strigiformes"], "binomial": ["Procyon lotor"]}
+
+
+def sentinel_mask(df, kind="diurnal", genus_col="genus", class_col="class",
+                  order_col="order", binomial_col="sp_binomial"):
+    """Boolean mask selecting global diurnal or nocturnal sentinel rows.
+
+    Used to screen timestamp storage and camera clocks on exports that reach
+    beyond North America, where the single-species sentinels above do not occur.
+    Run BOTH masks: a clock error inverts the two groups together, while an
+    unusual site moves only one, and that difference is the whole diagnostic.
+    Returns a mask; the caller supplies night_fraction() per project.
+    """
+    spec = GLOBAL_DIURNAL if kind == "diurnal" else GLOBAL_NOCTURNAL
+    cols = {c: df[c].astype(str) if c in df.columns else None
+            for c in (genus_col, class_col, order_col, binomial_col)}
+    m = pd.Series(False, index=df.index)
+    if cols[genus_col] is not None and spec.get("genus"):
+        m |= cols[genus_col].isin(spec["genus"])
+    if cols[order_col] is not None and spec.get("order"):
+        m |= cols[order_col].isin(spec["order"])
+    if cols[binomial_col] is not None and spec.get("binomial"):
+        m |= cols[binomial_col].isin(spec["binomial"])
+    if cols[class_col] is not None and spec.get("class"):
+        birds = cols[class_col].isin(spec["class"])
+        if cols[order_col] is not None and spec.get("exclude_order"):
+            birds &= ~cols[order_col].isin(spec["exclude_order"])
+        m |= birds
+    return m
+
 
 def site_timezone(lat, lon):
     """IANA time zone at a coordinate. Requires `timezonefinder`."""
