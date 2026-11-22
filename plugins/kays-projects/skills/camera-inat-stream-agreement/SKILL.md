@@ -1,6 +1,6 @@
 ---
 name: camera-inat-stream-agreement
-description: "Standard workflow for interpreting integrated camera-trap and iNaturalist trend models: which parameter is the reportable population trend, how to test whether the two data streams agree, and the urban-rural screen that must run on every species. Use when reporting a trend from a joint camera/iNaturalist model, when the two streams disagree, or when deciding whether a trend is ecology or an observation artifact."
+description: "Standard workflow for integrated camera-trap and iNaturalist models: which parameter is the reportable population trend, the theta1 congruence metric and camera-only control that decide whether the two streams agree, and the mandatory urban-rural screen. Load BEFORE building any figure, map, table or report section that shows a trend, an abundance or intensity surface, a change or period-difference map, covariate effects, or any comparison of the camera and iNaturalist streams -- not only when writing conclusions. Also use when the two streams disagree, when deciding whether a pattern is ecology or an observation artifact, when asked how well the streams agree or what each stream contributes, and when interpreting mu, lambda, psi, theta0, theta1, year_beta, year_var or total_var_beta."
 metadata:
   authored_via: "claude-science"
   published_by: "agent"
@@ -17,6 +17,68 @@ metadata:
 The standard workflow for trends from the joint camera-trap + iNaturalist
 occupancy-intensity model. Three things that must happen every time, and one
 model extension for when the screen flags something.
+
+## 0. Checklist, before any figure or table leaves your hands
+
+This skill has repeatedly been skipped at the moment it was most needed,
+because the work in hand looked like figure-building rather than like
+"reporting a trend". It is the same workflow either way. Run these four
+checks against anything that shows a trend, a surface, a change map, or a
+comparison of the two streams.
+
+1. **Name the quantity, in the figure itself.** `psi` is camera occupancy and
+   carries `year_beta`, the reportable trend. `lambda` is the shared abundance
+   intensity and carries `total_var_beta`. `mu` is the expected iNaturalist
+   record count and carries `theta1 * total_var_beta`. Three different
+   quantities with three different trends; a panel that does not say which one
+   it is showing will be read as the reported trend.
+2. **Quote theta1 with its interval, against BOTH thresholds** (section 2a),
+   before any other statement about whether the streams agree. If you are
+   writing a sentence comparing the streams and it does not contain theta1,
+   you have reinvented a worse version of this metric.
+3. **Say whether the camera-only control exists** (section 2b). If it has not
+   been run for the window in hand, say so in the artifact rather than
+   leaving the comparison looking complete.
+4. **Say whether the urban-rural screen has been run** (section 3). Its
+   default outcome is "not assessed", which is not agreement.
+
+If any of 2-4 is unavailable for the window being reported, publish a
+coverage table saying which of the three assessments exist and which do not.
+A reader cannot tell a missing assessment from a passed one.
+
+### `mu` is not the abundance surface
+
+Measured on the eleven five-year fits (2026-11-20): the per-cell change in
+`mu` matches `theta1 * total_var_beta` to a mean error of 0.97 percentage
+points per year, against 6.42 for the reading that treats `mu` as abundance.
+The two species whose covariates barely move -- nine-banded armadillo and
+collared peccary -- match the first to two decimal places.
+
+So `mu_snapshots` holds the expected iNaturalist **record count**, not
+abundance. Relative abundance is recovered as `log(lambda) = log(mu)/theta1`
+up to an additive constant, which cancels from both the spatial pattern and
+the change. The recovery reproduces `total_var_beta` to a mean of 2.4 points
+per year, the residual being genuine annual-covariate variation.
+
+**`reportlib/figures_maps.py:fig_abundance` plots `mu_mean` under the title
+"Relative abundance surfaces" and is wrong on this point.** Figures built
+from it in earlier reports carry that mislabel.
+
+Do not invert `mu` when `theta1` is near zero: the division amplifies without
+limit, and a `theta1` interval spanning zero means there was no abundance
+signal in the records to recover.
+
+### Surfaces are not protected by the escape valve
+
+`year_var` protects the *camera-anchored trend* from iNaturalist-specific
+temporal signal. It does not protect anything computed from the iNaturalist
+side. Abundance surfaces, intensity maps and period-change maps all move with
+`total_var_beta`, so on the five-year fits three of eleven species change in
+the opposite direction to their own reported trend: California ground
+squirrel (+1.1%/yr against a reported -37.7), groundhog (+12.5 against -8.2)
+and eastern chipmunk (+4.6 against -0.6). Two of those three have a theta1
+interval spanning zero, which is the mechanism rather than a coincidence.
+Print both numbers on any such panel and mark the disagreements.
 
 ## 1. Report the camera-anchored trend, never the summed one
 
