@@ -68,17 +68,38 @@ Do not invert `mu` when `theta1` is near zero: the division amplifies without
 limit, and a `theta1` interval spanning zero means there was no abundance
 signal in the records to recover.
 
-### Surfaces are not protected by the escape valve
+### The surface is shared; only its year coefficient is not
 
-`year_var` protects the *camera-anchored trend* from iNaturalist-specific
-temporal signal. It does not protect anything computed from the iNaturalist
-side. Abundance surfaces, intensity maps and period-change maps all move with
-`total_var_beta`, so on the five-year fits three of eleven species change in
-the opposite direction to their own reported trend: California ground
-squirrel (+1.1%/yr against a reported -37.7), groundhog (+12.5 against -8.2)
-and eastern chipmunk (+4.6 against -0.6). Two of those three have a theta1
-interval spanning zero, which is the mechanism rather than a coincidence.
-Print both numbers on any such panel and mark the disagreements.
+Verified against `model_code_national_scalar.R`: `link_occ_intercept`,
+`MWMT_effect`, `MCMT_effect` and all nine `occ_beta` covariate effects appear
+in BOTH the `cloglog(psi[i])` block and the `calcIntensity` block. **The
+spatial surface is jointly informed by the camera and iNaturalist likelihoods
+and by the covariates.** Calling it an iNaturalist product is simply wrong
+about this model.
+
+The only parameter that differs between the two blocks is the year
+coefficient: `psi` carries `year_beta`, the intensity carries
+`total_var_beta`. So the surface *as fitted* changes at the iNaturalist rate.
+Before correction, three of eleven five-year species had abundance maps moving
+opposite to their own reported trend -- California ground squirrel, groundhog
+and eastern chipmunk.
+
+**Anchor the change panel rather than captioning around it.** Year enters the
+log-intensity linearly and identically in every cell, so the swap is a
+constant shift that leaves spatial variation intact:
+
+    dlog_anchored = dlog_fitted - total_var_beta * (span / sd_inat)
+                                + year_beta      * (span / sd_cam)
+
+with `sd_inat` and `sd_cam` the two `year_sd` values in the run's
+`year_scaling` file -- the blocks standardise year differently, so using one
+scaling for both is wrong. This took sign disagreements from three to one and
+the median gap between surface and reported trend to 0.76 pp/yr. Implemented
+in `reportlib/figures_products.py:abundance_change`, which returns both
+`as_fitted_pct_yr` and the anchored `pct_per_year`.
+
+The window is **2021-2025**. There is no 2020 surface on the five-year fits;
+only the ten-year runs (bobcat, white-tailed deer) reach back that far.
 
 ## 1. Report the camera-anchored trend, never the summed one
 

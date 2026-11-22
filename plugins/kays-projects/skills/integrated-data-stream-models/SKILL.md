@@ -204,17 +204,41 @@ place was" with "differs by how urban it became".
 **Test on a few cases before any fleet-wide commitment, and change one thing
 at a time.** If two things change at once, neither effect is attributable.
 
-## 6. Surfaces are not protected by the sink
+## 6. The surface is shared; only its temporal slope is not
 
-The sink protects the *anchored parameter*. It protects nothing computed from
-the opportunistic side.
+Read this carefully, because the natural shorthand for section 1 is wrong and
+produces a wrong figure.
 
-Intensity surfaces, period-change maps and anything derived from the
-opportunistic stream's expected counts move with the summed parameter, not the
-anchored one. **They can therefore move opposite in direction to the headline
-estimate for the same case** -- on one fleet, three of eleven species did,
-and two of those three had a `theta` interval spanning zero, which is the
-mechanism rather than a coincidence.
+**The latent surface is joint.** In a well-built integrated model the spatial
+structure -- intercept fields, smoothed covariate fields, fixed covariate
+effects -- appears in *every* likelihood block, so all streams and all
+covariates inform where the thing is. Check this by listing which parameters
+appear in which block before saying anything about a surface's provenance.
+Describing a jointly informed surface as belonging to the opportunistic stream
+is a factual error about the model, not a conservative caveat.
+
+**What differs is the year coefficient alone.** The anchored block carries
+`beta`; the block feeding the opportunistic likelihood carries `beta +
+beta_extra`. So the surface *as fitted* changes at the opportunistic rate,
+which is not the reported estimate. Period-change maps built from it can move
+opposite in direction to the headline -- on one fleet three of eleven species
+did.
+
+**That is fixable, not merely reportable.** Time enters the log-intensity
+linearly and identically in every cell, so substituting the anchored
+coefficient for the summed one is a constant shift: it moves the whole surface
+onto the reported trend and leaves the covariate-driven spatial variation
+untouched.
+
+    dlog_anchored = dlog_fitted - beta_sum * (span / sd_opportunistic)
+                                + beta     * (span / sd_anchored)
+
+Standardisations differ between blocks, so divide each coefficient by its own
+scaling before use. On the fleet above this took sign disagreements from three
+of eleven to one, with a median gap of 0.76 points per year between the
+anchored surface and the reported trend; the residual is genuine
+covariate-driven variation between cells, which is what the map exists to
+show. Publish both versions in the table and the anchored one in the figure.
 
 Print both numbers on any such panel and mark the disagreements.
 
