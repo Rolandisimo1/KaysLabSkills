@@ -16,6 +16,72 @@ Failure modes found the hard way on a 26,798-deployment / 60-project continental
 dataset. Every one was silent: the analysis ran, produced plausible numbers, and
 was wrong. Run these checks BEFORE modelling, not after a reviewer asks.
 
+## Wildlife Insights science-view exports: establish the shape before the content
+
+A "science view" export arrives as two CSVs, an image-level file and a
+sequence-level file, and they hold **disjoint project sets** — a WI project is
+configured as either an image project or a sequence project. Reference export:
+118,583,080 image rows across 3,808 projects, 10,013,698 sequence rows across
+1,298 projects, with zero projects and zero deployments in common. Carry a
+`source_file` column from the first line of code; never assume a project id or
+deployment id is unique across the pair without checking.
+
+**No deployment table ships with the export, and one reconstructs exactly.**
+Deployment attributes — coordinates, sensor window, first/last image time — are
+denormalised onto every detection row. Group by `deployment_id`, take the
+distinct values, and then ASSERT the reconstruction:
+
+```sql
+SELECT count(*) FROM (SELECT deployment_id FROM rows GROUP BY deployment_id
+  HAVING count(DISTINCT latitude)>1 OR count(DISTINCT sensor_start)>1
+      OR count(DISTINCT project_id)>1)
+```
+
+This returned 0 of 330,769 deployments on the reference export, which is what
+licenses treating the result as the deployment table rather than a guess. A
+non-zero count means the export is internally inconsistent and the
+reconstruction is unsafe — stop and report it.
+
+**Row grain differs between the two files, and neither is one row per event.**
+An image row is one taxon in one photo; a sequence row is one taxon in one
+sequence. The "one sequence is not one row" rule below has an image-file
+analogue: rows sharing `(deployment_id, timestamp)` are the same photo split by
+age/sex class. To put the files on a common footing, collapse image rows with
+the 60 s Wildlife Insights sequence interval, chained within a deployment.
+Domestic dog in the reference export: 828,560 image rows → 657,410 distinct
+timestamped photos → **189,534 independent events**: 4.4x fewer than raw rows, 3.5x fewer than photos. Applying
+the same 60 s rule across sequence start times changed the sequence file by only
+0.4% (154,517 → 153,838), confirming WI sequences are already built on that
+interval and that the collapsed image counts are comparable.
+
+**Datetime columns can hold the literal string `None`.** 2,061,003 image rows
+(1.7%) and 37,662 sequence rows. `TRY_CAST` and COUNT the resulting nulls; a
+parse failure here is data, not a loading bug, and those rows can never enter an
+event count or an effort window.
+
+**`country_code` is absent from `project_metadata` for 38% of deployments**
+(80,975 image, 45,225 sequence) — genuinely missing from the JSON, not a parsing
+failure. Derive country from coordinates instead.
+
+**No embargo, licence, or fuzzing field exists anywhere in the export**, so
+whether a record may be reshared cannot be answered from the files. Ask the
+provider for the project embargo setting and the per-deployment upload date; the
+embargo clock starts at upload, not at collection, so sensor dates cannot stand
+in for it. Whether coordinates were fuzzed IS testable: WI fuzzes sensitive
+locations by truncating to 0.1 decimal degree (~11 km), so fuzzed deployments
+must sit exactly on a 0.1° grid. Test the grid AND test whether that group is
+enriched for IUCN VU/EN/CR species. Reference export: 654 of the 330,759 deployments
+carrying coordinates (0.198%; 10 of the 330,769 total have none) sat on the grid and were NOT enriched (17.0% carried a VU/EN/CR species
+versus 17.7% of the rest), i.e. coarse coordinate entry rather than fuzzing —
+the export held full-precision coordinates for 58,561 sensitive-species
+deployments. Check this before resharing anything deployment-level.
+
+**Scale.** The image file is 126.6 GB of CSV. Convert both to column-pruned
+Parquet with DuckDB before any QC (`all_varchar=true` on read, then `TRY_CAST`
+per column): 49 s and 1.03 GB out for 118.6 M rows, because dropping the
+repeated `project_metadata` JSON blob is most of the file. Every check below
+then runs in under a second. pandas is not an option at this size.
+
 ## Species names: resolve them before anything else
 
 Load **`mdd-taxonomy`** and use it. Multi-project camera-trap exports carry
@@ -45,6 +111,29 @@ is rarely confused. Gray squirrel is safe on this front by day but flying
 squirrels are the nocturnal confusion risk, which is why the two-sentinel test
 (both species inverted together) is what distinguishes a clock error from a
 misidentification rather than either species alone.
+
+**Domestic forms break trinomial reduction — resolve in the right order.**
+Accepted name on the full string, then the synonym table on the full string, and
+only then reduce a trinomial to its binomial. Wildlife Insights labels dingo
+`Canis lupus dingo`; MDD v2.5 lists that exact combination as a synonym of
+*Canis familiaris*, so a synonym-first lookup resolves it correctly while a
+trinomial-first rule files 109,250 dingo records under *Canis lupus* (Gray
+Wolf). WI uses `Canis familiaris`, not `Canis lupus familiaris`, so a *C. lupus*
+query does not pull dogs — the hazard here is the dingo name, not the dog name.
+Decide explicitly whether dingo belongs in a domestic-dog analysis; MDD says it
+is the same species, and WI labels it `wild-animal` while dog is
+`domestic-animal`. `Dog-on-leash` is a second WI common name under the same
+binomial (13,301 rows): an attribute of the detection, not a taxon.
+
+**The MDD synonym table stores original combinations with the subgenus in
+parentheses** — `Macropus (Petrogale) robustus`, `Macropus (Halmaturus) parma`.
+Strip parentheticals before matching or every genus change silently fails to
+resolve. With that fix, 99.95% of 92.6 M mammal rows in the reference export
+resolved to MDD v2.5: 1,406 names matched an accepted name exactly and 139
+resolved through synonyms, covering 1.8 M rows whose current name differs from
+the string in the file (*Mazama nemorivaga* → *Passalites nemorivagus*,
+*Macropus robustus* → *Osphranter robustus*, *Cephalophus* → *Cephalophorus*),
+leaving 6 unresolved names and 3 ambiguous splits.
 
 Also watch for captive records when using occurrence data as a range or richness
 layer — zoo observations of large carnivores are common in aggregated
@@ -84,47 +173,27 @@ Re-plot after each cleaning step. A fix that looks right in a summary
 statistic often looks obviously wrong in the timeline.
 
 ## One sequence is not one row: age, sex, and group_size
+A detection of one species at one camera can occupy several rows, split by age
+class and sex. Collapse rows sharing (deployment, taxon, timestamp) into one
+photograph and SUM their animal counts before anything else; counting rows counts
+annotation granularity.
 
-A camera-trap "sequence" is one detection event, but the observations table
-carries **one row per (species x age x sex) class within that event**. A doe with
-two fawns is legitimately two rows on the same sequence_id: one Adult/Female with
-group_size 1, one Juvenile/Unknown with group_size 2. Multiple species in one
-event also produce multiple rows.
+**Group size means two different things in the two file types, and the column must
+say which.** Carry a `group_size_basis` alongside every group size:
 
-So `sequence_id` is NOT a unique key, and the correct handling depends on your
-response variable:
+- **sequence project**: the sum of the animal counts the observer recorded across
+  the sequence. This is a real count of the group and is the column to use for any
+  question about group size.
+- **image project**: the LARGEST per-photograph count inside the event. The same
+  individuals reappear frame after frame, so summing frames multiplies one animal
+  into many; taking the maximum avoids that but makes the number a **floor**. Three
+  animals that pass one at a time, never sharing a frame, are recorded as a group
+  of one.
 
-| Response | Rule |
-|---|---|
-| **Detection events** (activity patterns, diel timing, occupancy) | Deduplicate on `(deployment_id, sequence_id, species)`. Extra age/sex rows are the same event and would otherwise be double-counted. |
-| **Abundance / animals counted** (detection rate weighted by group size) | **SUM `group_size` across the age/sex rows** within each `(deployment_id, sequence_id, species)`. Deduplicating instead silently discards animals. |
-
-**Check: count how many `(sequence_id, species)` groups vary in `age` or `sex`.**
-Reference (Mast and Mammals, 22,923 events): 635 sequence_ids had multiple rows —
-127 genuinely multi-species, 508 the same species split by class. Within those,
-474 groups varied by age and 493 by sex. Deduplicating for events was correct and
-changed no event count, but it understated total animals by 648 of 29,424
-(**2.2%**) — invisible unless you check, and it biases group-size-weighted
-abundance downward wherever family groups occur.
-
-Never assume the duplication is an export error. It is the data model, and the
-age/sex breakdown is real information you may want.
-
-**Do not report this as a data-quality defect.** Multi-row sequence_ids are expected
-structure, not a mistake by the data provider, and listing them in a QC report or
-dashboard as an "issue" misleads the project team into thinking something is wrong
-with their data. Two legitimate causes: (a) the same species split into age/sex
-classes, and (b) two or more species in one event. Both are correct. State the
-deduplication rule as an *analysis convention* for whoever uses the data next, and
-keep it out of the defect list.
-
-The same applies to other provider-side properties of the platform's data model.
-Wildlife Insights leaving `common_name` empty for some taxa, or not populating
-`cv_confidence` in an export, or an `is_blank` flag that disagrees with a "Blank"
-label, are platform behaviours, not errors the project team introduced or can fix.
-Note them as handling conventions where they affect your code, but do not put them
-in a defect list. Reserve that list for things the project can actually act on:
-wrong coordinates, duplicated deployments, broken clocks, mis-entered dates.
+On the reference export the means were 1.33 (sequence) and 1.79 (image maximum).
+That difference is a property of the two counting rules, not of the animals, so
+either restrict group-size analysis to sequence projects or stratify by the basis
+column. Never pool them silently.
 
 ## Richness and species accumulation: species-level records only
 
@@ -214,7 +283,7 @@ argument rather than a buried default.
 
 ## The five checks, in order
 
-### 1. Timezone storage is per-project, and per-camera
+### 1. Timezone storage is per-deployment, not per-project
 Do NOT trust the timestamp column, its suffix, or a project's documentation. A
 `Z`/UTC suffix frequently holds local wall-clock time; some projects in the same
 export hold real UTC; and individual cameras inside a correct project can be
@@ -240,6 +309,52 @@ Get the zone from the IANA database (`timezonefinder` + `zoneinfo`), never from
 not observe DST. Hand-coded boundaries failed on Nashville, El Paso and Phoenix.
 The corrected `solar_window(timestamps, latitude, longitude)` validates to within
 14 min of published sunrise/sunset across 9 sites in 4 zones.
+
+**A sentinel set that works outside North America.** The four sentinels above
+are North American; a global export needs groups that occur everywhere. Use
+**diurnal = genus *Sciurus* plus class Aves excluding Strigiformes (owls) and
+Caprimulgiformes (nightjars)**, mirrored by **nocturnal = Strigiformes plus
+*Didelphis*, *Procyon lotor*, *Genetta* and *Rattus***. On the reference export
+these landed at 8.4% and 92.4% of detections at night respectively (project
+medians 4.2% and 96.8%) — compute that pair of numbers first, because it
+validates the sentinel set on YOUR data before any project is flagged by it.
+Humans (`taxonomy_subtype='human'`) are a usable third diurnal sentinel, median
+2.5–4.3% night, worth adding where neither group reaches the minimum count.
+
+**The nocturnal mirror is what separates a broken clock from an unusual site.**
+A clock error inverts both groups at once; a genuinely odd site moves one. On
+the reference export 75 projects crossed the 20% diurnal-night threshold with
+the UTC signature, and 6 showed both groups inverted together (diurnal >50%
+night AND nocturnal <50% night) — a combination no animal community produces.
+
+**Coverage is limited by project SIZE, not by sentinel choice.** A diurnal
+sentinel reached 2,752 of 5,106 projects at a 60-detection minimum; any
+sentinel including humans reached 3,177 (62.2%). The 1,929 projects with no
+sentinel hold 1.2% of all rows, median 37 rows each — 1,505 of them have under
+200 rows in total. Adding more sentinel taxa does not fix that. Report those
+projects as **unscreened**, never as passing.
+
+**Screen at the DEPLOYMENT level, not the project level.** Clock errors enter per
+camera and per upload. A project with one misconfigured camera is not a broken
+project: flagging the whole project discards hundreds of good deployments, and a
+single-camera fault inside a clean project goes unnoticed because the project
+median absorbs it. On a 330,769-deployment export, moving the same screen from
+project to deployment changed the result from "75 suspect projects" to **2,888
+suspect deployments out of 123,789 testable (2.3%)**, which is a usable exclusion
+list instead of a blunt one.
+
+Deployment-level sampling that worked on that export: **minimum 20 sentinel
+detections, capped at 200 per deployment per group**. The minimum is what limits
+coverage — 205,359 deployments never reach 20 and are reported `unscreened` — and
+the cap stops one 40,000-detection camera from dominating its own test.
+
+**Cameras genuinely on UTC cannot be tested, and must not be scored as passing.**
+The UTC test shifts each timestamp by the site's own offset from UTC and asks
+whether the day-night pattern improves. For a camera in Britain, Portugal, Iceland
+or West Africa that offset is near zero, so the shift changes nothing and the test
+has no power. Give those deployments their own status (`untestable_for_utc`,
+|offset| < 1 h; 1,621 of 330,769 on the reference export) instead of letting a
+no-change result read as a pass. A pass there is an artefact of geography.
 
 **Project level: a real hypothesis, and safe to act on.**
 ```
@@ -354,26 +469,71 @@ threshold to anything still too dispersed. Complete linkage GUARANTEES the
 bound; single linkage chains through intermediate cameras and left a 196 km
 array under a 25 km threshold.
 
-### 3. Repeated deployments at one location — two cases, opposite fixes
-The same coordinates recur in the deployment table for two completely different
-reasons, and conflating them corrupts either effort or sample size. Plot the
+### 2b. Repair the operating window; do not discard the deployment
+Stated windows disagree with the photographs constantly: a window that is missing,
+backwards, zero-length, in the future, or that fails to contain the images. The
+instinct is to drop those deployments. On the reference export that cost 35,681
+deployments, 11% of the dataset, almost all of them ordinary cameras with a
+mistyped end date.
+
+Rebuild the window instead: where the stated window disagrees with the
+photographs, take first photograph to last photograph and set a `window_repaired`
+flag. 35,811 deployments were repaired this way and the exclusion count fell from
+35,681 to **6,602 (2.0%)**, which are only the deployments with no usable
+photographs at all. "No first-image time" means the camera produced nothing; that
+one is genuinely unusable for anything timed and is the only date defect that
+cannot be repaired.
+
+**Bound photograph timestamps before you take the first and last.** The repair
+trusts the photographs, so one corrupt photograph destroys the deployment. Drop
+timestamps outside a plausible range (1990 to now) BEFORE aggregating. On the
+reference export 429 deployments carried photographs stamped as far out as the
+year 9095, and a single one of them gave a four-month deployment **3.85 million
+camera-days** of effort. Record the count per deployment
+(`n_impossible_image_dates`) so the defect is visible rather than silently
+repaired.
+
+### 2c. Row ordering inside a window function must be deterministic
+A gap analysis that orders deployments by start time within a station will meet
+ties, because several cameras at one station are often entered with the same start
+instant. `row_number() OVER (PARTITION BY station ORDER BY start)` then assigns
+consecutive pairs arbitrarily and the gap counts move between runs of the same
+script on the same data. Add the primary key as a tiebreaker
+(`ORDER BY start, deployment_id`). This was caught only because a figure
+regenerated from the saved pipeline disagreed with the text written from an
+earlier run by 40 pairs.
+
+### 3. Repeated deployments at one station — three cases, three fixes
+The same coordinates recur in the deployment table for several different reasons,
+and conflating them corrupts either effort or sample size. Plot the
 gap-between-consecutive-deployments histogram (section 0b); it is usually
-sharply bimodal, which makes the two cases separable empirically rather than by
+sharply bimodal, which makes the cases separable empirically rather than by
 assumption.
 
-**Case A — back-to-back, gap of days or less: MERGE into one deployment.**
-A camera serviced, an SD card swapped, a battery changed, or a record split at
-an arbitrary boundary produces two or more rows for what is one continuous
-survey. Treating them as independent deployments double-counts the site within
-a single survey occasion, inflates the deployment count, and — if you compute
-per-deployment detection rates — creates spurious low-count units whose noisy
-metrics feed straight into the precision confound of section 5. Merge rows at
-identical coordinates whose gap is at or below a few days into a single
-deployment spanning the union of their dates, summing effort. Watch for
-NEGATIVE gaps: overlapping deployments at one location mean two cameras at one
-station or a data-entry error, and they need resolving, not merging.
-Reference: 1,813 of 6,368 consecutive same-location pairs were 7 days or less
-apart, 191 of them overlapping.
+**First, build the station, because exact coordinate matching is wrong.**
+Coordinates recorded by hand or from different GPS fixes drift by a few metres, so
+matching on the exact pair splits one physical station into several. Cluster
+deployments whose coordinates fall within ~10 m (KD-tree plus connected components)
+and give each cluster a **derived placename**. On the reference export 158,092
+recorded placenames collapsed to 141,428 derived ones, a mean of 2.34 deployments
+per station. Do this before any gap analysis, or the gaps are computed between
+records that were never at the same place.
+
+**Case A — back-to-back, gap of days or less: ONE STATION, but NOT one
+deployment.** A camera serviced, an SD card swapped or a record split at an
+arbitrary boundary produces two rows for what is one survey. Treat them as one
+station for sampling: they are not independent sites, and counting them as two
+inflates the deployment count and creates noisy low-count units.
+
+**Do NOT merge them into a single deployment spanning both dates.** An earlier
+version of this skill recommended exactly that, and it is wrong whenever the two
+records do not abut: the merged window includes the days the camera was not
+recording, and that time enters effort as if it had been surveyed. Measured on the
+reference export, spanning the gaps of the 66,941 consecutive pairs that have one
+would have added **18.7 million camera-days, 106% of the real effort in the
+export** — the fabricated effort would have exceeded the measured effort. Effort
+never runs across a gap. Each record contributes only its own recording period,
+and the two share a station identifier.
 
 **Case B — annual re-survey, gap of ~a year: keep as separate deployments, but
 pool into ONE array.** Coordinated surveys re-deploy at the same station each
@@ -387,11 +547,72 @@ Case B is especially damaging to fine-scale variance claims: two arrays at the
 same site have identical covariates and zero separation, so "variation below
 25 km" silently absorbs the same site measured in different years.
 
-**Caveat on pooling.** If a site genuinely changed between years — new road,
-altered hunting access, a burn — pooling averages away real variation. Before
-pooling, check whether the same site's estimates differ more across years than
-across cameras within a year; if they do, year is a real effect at that site and
-should be modelled rather than absorbed.
+**Case C — two cameras at one station, running at the same time: drop one from
+effort.** Paired cameras set to photograph both flanks of an animal are put out
+together and collected together, so their windows start AND end within a few days
+of each other. Matching both ends is what separates a true pair from two cameras
+that happened to overlap at one station across seasons. Counting both doubles the
+effort at that station while the detections stay the same, which halves the
+apparent detection rate there.
+
+Detection rule that worked: deployments at one derived placename whose starts and
+ends both fall within 7 days, with a cap on effort (730 days) so that a
+mis-specified long window cannot swallow a whole station. Mark the lower-yield
+camera `paired_camera_redundant` and exclude it from effort, keeping its
+detections available for occupancy or species lists. Reference: 9,346 true pairs,
+618,359 camera-days removed, 3.5% of the total.
+
+Three or more cameras concurrent at one coordinate is NOT a pair. That is an array,
+or a project that recorded coordinates at site level rather than camera level.
+Reference: 6,713 such stations covering 74,901 deployments. Flag them
+(`flag_shared_coordinate`) and leave the treatment to the question, because
+dropping all but one would discard a real array design.
+
+### 3b. A deployment longer than the survey: clip, split, or keep
+
+A stated window of years is usually a metadata defect rather than a long survey,
+and the three cases need opposite fixes. Plot detections per day against the
+stated window for every deployment over two years; the picture decides it.
+
+Reference export: 3,073 deployments had windows longer than two years, but about
+2,000 of those had `sensor_end` beyond the export date (as far out as the year
+9094) and no splitting can repair them. Of the 1,089 with plausible windows:
+
+- **752 (69%) — clip the window.** Median stated window 1,096 days against a
+  median detection span of 39 days. The end date is wrong; the deployment is
+  short. Clip to the detection span, do not split.
+- **282 — split.** Detections cover most of the window but contain real
+  silences. These became 1,639 segments, 2 to 12 per deployment.
+- **45 — keep.** Genuinely continuous across a long window.
+- **10 — no usable detections.**
+
+**Split rule: a silence of at least 30 days AND at least 10x that camera's own
+median inter-detection interval.** The second clause is load-bearing. Median
+inter-detection interval on these deployments was 1.5-2 days, so a flat 30-day
+rule is right for an active camera but shreds a sparse one that legitimately
+fires every 10 days. Both thresholds belong in the output table so the split can
+be re-cut without re-deriving it.
+
+Separate the cases with two ratios per deployment: **window coverage**
+(detection span / stated window; below 0.5 means clip) and the segment count
+from the split rule (above 1 means split).
+
+**Apply the triage to EFFORT, not just to a report column.** A clipped deployment
+contributes its detection span, a split one the sum of its segments, and one with
+no usable detections contributes nothing. A verdict written to a CSV and not
+applied to the denominator changes nothing.
+
+**Lower the threshold and report the sensitivity.** Two years is too generous: a
+camera with a three-month window and a two-month silence has the same problem. On
+the reference export, screening every deployment over **90 days** put 60,295 under
+inspection, of which 35,786 were kept, 12,207 split, 11,868 clipped and 434 had no
+usable detections.
+
+The split rule has two tunable numbers (minimum gap, and multiple of that camera's
+own median gap between detection days) and they matter. Across six threshold pairs
+on the same 59,861 deployments, the number split ranged from 6,791 (90 days, 10x)
+to 23,780 (15 days, 5x), a factor of 3.5. Publish that table next to whichever
+setting you chose; the rule is defensible, the specific numbers are a choice.
 
 ### 4. Sun-anchored time breaks the effort offset
 Sun-time transformation (Vazquez et al. 2019 MEE) rescales each day so sunrise
@@ -452,6 +673,67 @@ arrays, 16 of them western, so a continental contrast was 41% an east-west
 comparison. Restrict to the region where the predator plausibly occurs, and
 report the minimum detectable effect — a within-region non-result on 30 arrays
 is not evidence of absence.
+
+## Domestic animals: was there a person with it?
+A domestic dog or cat in front of a camera is a different ecological object
+depending on its company, and the camera is the only witness. Three levels work
+better than a binary:
+
+1. **with a person** — a person in the SAME detection event (same sequence id in a
+   sequence project; a person photograph inside the event or within the
+   independence interval of its ends in an image project)
+2. **near a person** — no person in the event, but a person at that camera within a
+   chosen window (30 min worked on the reference export)
+3. **free-ranging** — no person at that camera within the window
+
+**Count vehicles and bikes as people.** Every vehicle, ATV, truck, snowmobile,
+motorcycle, boat and e-bike label carries a driver or rider. Omitting them
+undercounts accompaniment materially. Leave out object labels that imply nobody
+(Trash, Measurement Scale). Watch for horseback-rider labels, which some platforms
+file outside the obvious human category.
+
+**Validate the level-2 window against a day-shifted null, not against intuition.**
+Move each animal detection one day forward, and separately one day back, and rerun
+the rule against the REAL person detections. A day shift preserves hour-of-day and
+season, which are what drive when people and animals pass a camera, and destroys
+only the pairing between a particular animal and a particular person. Whatever the
+rule still finds is coincidence. On the reference export the excess over the null
+peaked near 60 min, but the share of flagged detections the null already explained
+rose from 67% at 30 min to 72% at 60 min and 82% at 240 min: pick the turn, and
+publish the table so the reader can see what the choice cost.
+
+**Measure recall with a label you already trust.** A "dog on leash" label is an
+independent witness that a person was present, so the share of leashed detections
+the rule recovers IS its recall: 85% in the event, 89% within 30 min. The misses
+were not a blind rule (only 77 of 695 were at cameras that never label humans) but
+annotation practice, where a leash is visible and the handler is out of frame.
+Report the free-ranging rate as an upper bound accordingly.
+
+**Remove the field crew's own animals.** A dog photographed with a person within
+30 min of a deployment's first or last photograph is the camera trapper's dog at
+setup or pickup. That was 4,972 of 360,118 dog detections (1.4%), and 41 of
+146,793 cat detections — the asymmetry is itself a check that the filter is doing
+what it claims.
+
+**The three levels are worth the trouble because they separate.** Modelled as
+negative binomial counts with log effort offset and country as a fixed effect, on
+the reference export: a road or hiking trail multiplied the accompanied dog rate
+by 2.56 and the free-ranging dog rate by 1.90, but the free-ranging CAT rate by
+1.00 (0.93–1.08). Bait cut accompanied dogs to 0.19x while leaving free-ranging
+dogs at 1.11x and cutting free-ranging cats to 0.45x. Pooling the levels, or
+pooling the two species, would have hidden all of it.
+
+**Fit a negative binomial, and check the dispersion.** Detections cluster hard:
+alpha came out 23–62 across these models, so a Poisson fit would have produced
+confidence intervals several times too narrow. Estimate alpha with the
+Cameron-Trivedi auxiliary regression of the squared Poisson residual on the
+Poisson mean, then hold it fixed. Drop countries with fewer than ~5 detections at
+a level: their dummies are perfectly separated and have no finite coefficient.
+
+**Camera height is a nuisance covariate you cannot omit for small animals.**
+Chest-height cameras recorded 0.71x the free-ranging cat rate of knee-height ones
+and 1.02x the dog rate. A cross-country cat comparison that ignores height
+compares survey designs.
 
 ## Reporting
 State per-project timezone verdicts, array-definition rules with the resulting

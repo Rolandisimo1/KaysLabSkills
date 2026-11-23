@@ -1,6 +1,6 @@
 ---
 name: camera-inat-stream-agreement
-description: "Standard workflow for interpreting integrated camera-trap and iNaturalist trend models: which parameter is the reportable population trend, how to test whether the two data streams agree, and the urban-rural screen that must run on every species. Use when reporting a trend from a joint camera/iNaturalist model, when the two streams disagree, or when deciding whether a trend is ecology or an observation artifact."
+description: "Standard workflow for integrated camera-trap and iNaturalist models: which parameter is the reportable population trend, the theta1 congruence metric and camera-only control that decide whether the two streams agree, and the mandatory urban-rural screen. Load BEFORE building any figure, map, table or report section that shows a trend, an abundance or intensity surface, a change or period-difference map, covariate effects, or any comparison of the camera and iNaturalist streams -- not only when writing conclusions. Also use when the two streams disagree, when deciding whether a pattern is ecology or an observation artifact, when asked how well the streams agree or what each stream contributes, and when interpreting mu, lambda, psi, theta0, theta1, year_beta, year_var or total_var_beta."
 metadata:
   authored_via: "claude-science"
   published_by: "agent"
@@ -17,6 +17,89 @@ metadata:
 The standard workflow for trends from the joint camera-trap + iNaturalist
 occupancy-intensity model. Three things that must happen every time, and one
 model extension for when the screen flags something.
+
+## 0. Checklist, before any figure or table leaves your hands
+
+This skill has repeatedly been skipped at the moment it was most needed,
+because the work in hand looked like figure-building rather than like
+"reporting a trend". It is the same workflow either way. Run these four
+checks against anything that shows a trend, a surface, a change map, or a
+comparison of the two streams.
+
+1. **Name the quantity, in the figure itself.** `psi` is camera occupancy and
+   carries `year_beta`, the reportable trend. `lambda` is the shared abundance
+   intensity and carries `total_var_beta`. `mu` is the expected iNaturalist
+   record count and carries `theta1 * total_var_beta`. Three different
+   quantities with three different trends; a panel that does not say which one
+   it is showing will be read as the reported trend.
+2. **Quote theta1 with its interval, against BOTH thresholds** (section 2a),
+   before any other statement about whether the streams agree. If you are
+   writing a sentence comparing the streams and it does not contain theta1,
+   you have reinvented a worse version of this metric.
+3. **Say whether the camera-only control exists** (section 2b). If it has not
+   been run for the window in hand, say so in the artifact rather than
+   leaving the comparison looking complete.
+4. **Say whether the urban-rural screen has been run** (section 3). Its
+   default outcome is "not assessed", which is not agreement.
+
+If any of 2-4 is unavailable for the window being reported, publish a
+coverage table saying which of the three assessments exist and which do not.
+A reader cannot tell a missing assessment from a passed one.
+
+### `mu` is not the abundance surface
+
+Measured on the eleven five-year fits (2026-11-20): the per-cell change in
+`mu` matches `theta1 * total_var_beta` to a mean error of 0.97 percentage
+points per year, against 6.42 for the reading that treats `mu` as abundance.
+The two species whose covariates barely move -- nine-banded armadillo and
+collared peccary -- match the first to two decimal places.
+
+So `mu_snapshots` holds the expected iNaturalist **record count**, not
+abundance. Relative abundance is recovered as `log(lambda) = log(mu)/theta1`
+up to an additive constant, which cancels from both the spatial pattern and
+the change. The recovery reproduces `total_var_beta` to a mean of 2.4 points
+per year, the residual being genuine annual-covariate variation.
+
+**`reportlib/figures_maps.py:fig_abundance` plots `mu_mean` under the title
+"Relative abundance surfaces" and is wrong on this point.** Figures built
+from it in earlier reports carry that mislabel.
+
+Do not invert `mu` when `theta1` is near zero: the division amplifies without
+limit, and a `theta1` interval spanning zero means there was no abundance
+signal in the records to recover.
+
+### The surface is shared; only its year coefficient is not
+
+Verified against `model_code_national_scalar.R`: `link_occ_intercept`,
+`MWMT_effect`, `MCMT_effect` and all nine `occ_beta` covariate effects appear
+in BOTH the `cloglog(psi[i])` block and the `calcIntensity` block. **The
+spatial surface is jointly informed by the camera and iNaturalist likelihoods
+and by the covariates.** Calling it an iNaturalist product is simply wrong
+about this model.
+
+The only parameter that differs between the two blocks is the year
+coefficient: `psi` carries `year_beta`, the intensity carries
+`total_var_beta`. So the surface *as fitted* changes at the iNaturalist rate.
+Before correction, three of eleven five-year species had abundance maps moving
+opposite to their own reported trend -- California ground squirrel, groundhog
+and eastern chipmunk.
+
+**Anchor the change panel rather than captioning around it.** Year enters the
+log-intensity linearly and identically in every cell, so the swap is a
+constant shift that leaves spatial variation intact:
+
+    dlog_anchored = dlog_fitted - total_var_beta * (span / sd_inat)
+                                + year_beta      * (span / sd_cam)
+
+with `sd_inat` and `sd_cam` the two `year_sd` values in the run's
+`year_scaling` file -- the blocks standardise year differently, so using one
+scaling for both is wrong. This took sign disagreements from three to one and
+the median gap between surface and reported trend to 0.76 pp/yr. Implemented
+in `reportlib/figures_products.py:abundance_change`, which returns both
+`as_fitted_pct_yr` and the anchored `pct_per_year`.
+
+The window is **2021-2025**. There is no 2020 surface on the five-year fits;
+only the ten-year runs (bobcat, white-tailed deer) reach back that far.
 
 ## 1. Report the camera-anchored trend, never the summed one
 
